@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-md-color-scheme="slate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逸工作室 - 预览版</title>
+<style>
+:root {
+  --yi-blue: #1A5CFF;
+  --yi-purple: #7C3AED;
+  --yi-pink: #EC4899;
+  --yi-cyan: #06B6D4;
+  --yi-dark: #0A0E1A;
+  --yi-bg: #0A0E1A;
+  --yi-text: #e2e8f0;
+  --yi-text-dim: #94a3b8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--yi-bg);
+  color: var(--yi-text);
+  line-height: 1.7;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0A0E1A 0%, #0f172a 100%);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+/* 滚动进度条 */
+.yi-scroll-progress {
+  position: fixed; top: 0; left: 0;
+  height: 3px; width: 0;
+  background: linear-gradient(90deg, #1A5CFF, #7C3AED, #EC4899);
+  z-index: 1000;
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+}
+
+/* 顶部导航 */
+.md-header {
+  position: sticky; top: 0; z-index: 100;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 24px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.3s ease;
+}
+.md-header.scroll-transparent {
+  background: rgba(15, 23, 42, 0.7);
+}
+.md-header__title {
+  font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fff, #a5b4fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none; font-size: 0.95rem; font-weight: 500;
+  transition: color 0.2s; position: relative;
+}
+.nav-links a:hover { color: #fff; }
+
+/* Hero Banner */
+.hero-banner {
+  position: relative;
+  text-align: center;
+  padding: 5.5rem 2rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  border-radius: 20px;
+  color: #fff;
+  margin: 2rem 0 3rem 0;
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+}
+.hero-banner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(26, 92, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 92, 255, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
+  animation: gridFloat 22s linear infinite;
+  z-index: 0;
+}
+@keyframes gridFloat {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%);
+  top: -200px; right: -100px;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: glowPulse 6s ease-in-out infinite;
+  z-index: 0;
+}
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0.9; }
+}
+.hero-banner .hero-glow {
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(26, 92, 255, 0.5) 0%, transparent 70%);
+  bottom: -150px; left: -100px;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: glowPulse 8s ease-in-out infinite reverse;
+  z-index: 0;
+}
+.hero-banner h1 {
+  position: relative;
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  margin: 0 0 0.5rem 0;
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 45%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-banner .typing-cursor {
+  display: inline-block;
+  width: 3px; height: 1em;
+  background: linear-gradient(180deg, #a5b4fc, #c4b5fd);
+  margin-left: 4px;
+  animation: blinkCursor 0.8s step-end infinite;
+  vertical-align: text-bottom;
+  -webkit-text-fill-color: initial;
+}
+@keyframes blinkCursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.hero-banner p {
+  position: relative;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  opacity: 0.85;
+  margin: 0.8rem auto 2rem auto;
+  color: #e2e8f0;
+  max-width: 600px;
+}
+.hero-banner .hero-sub {
+  position: relative;
+  display: flex; justify-content: center;
+  gap: 0.6rem; flex-wrap: wrap;
+  margin-bottom: 1.8rem;
+}
+.hero-banner .hero-tag {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  color: #c4b5fd;
+  backdrop-filter: blur(10px);
+}
+.hero-banner .hero-buttons {
+  position: relative;
+  display: flex; gap: 1rem;
+  justify-content: center; flex-wrap: wrap;
+  z-index: 2;
+}
+.hero-banner .hero-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 36px;
+  border-radius: 50px;
+  font-weight: 700; text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  position: relative; overflow: hidden;
+}
+.hero-banner .hero-btn-primary {
+  background: linear-gradient(135deg, #1A5CFF 0%, #7C3AED 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(26, 92, 255, 0.4), 0 0 40px rgba(124, 58, 237, 0.2);
+  animation: btnPulse 2.5s ease-in-out infinite;
+}
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(26, 92, 255, 0.4), 0 0 40px rgba(124, 58, 237, 0.2); }
+  50% { box-shadow: 0 4px 20px rgba(26, 92, 255, 0.5), 0 0 60px rgba(124, 58, 237, 0.4); }
+}
+.hero-banner .hero-btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 35px rgba(26, 92, 255, 0.6), 0 0 70px rgba(124, 58, 237, 0.5);
+}
+.hero-banner .hero-btn-primary::after {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmerBtn 3.5s ease-in-out infinite;
+}
+@keyframes shimmerBtn { 0% { left: -100%; } 60%, 100% { left: 100%; } }
+.hero-banner .hero-btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+}
+.hero-banner .hero-btn-secondary:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
+  transform: translateY(-3px);
+}
+
+/* 统计栏 */
+.stat-bar {
+  display: flex; justify-content: space-around;
+  flex-wrap: wrap; gap: 1rem;
+  padding: 2.8rem 2rem;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.06) 0%, rgba(124, 58, 237, 0.06) 50%, rgba(236, 72, 153, 0.04) 100%);
+  border-radius: 20px; margin: 2rem 0;
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  position: relative; overflow: hidden;
+}
+.stat-bar::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(26, 92, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 92, 255, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+.stat-item {
+  text-align: center; flex: 1; min-width: 120px;
+  position: relative; z-index: 1;
+}
+.stat-number {
+  font-size: 2.8rem; font-weight: 900;
+  background: linear-gradient(135deg, #1A5CFF 0%, #7C3AED 50%, #EC4899 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+.stat-label {
+  font-size: 0.95rem;
+  color: var(--yi-text); opacity: 0.6;
+  margin-top: 0.25rem; font-weight: 500;
+}
+
+/* 标题 */
+h2 {
+  font-size: 1.8rem; font-weight: 800;
+  margin: 3rem 0 1.5rem 0;
+  background: linear-gradient(135deg, #1A5CFF, #7C3AED);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-left: 14px;
+  border-left: 4px solid;
+  border-image: linear-gradient(180deg, #1A5CFF, #7C3AED) 1;
+}
+
+/* Feature Cards */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.feature-card {
+  padding: 2rem;
+  border-radius: 18px;
+  background: rgba(30, 27, 75, 0.4);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; overflow: hidden;
+  transform-style: preserve-3d;
+}
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1A5CFF, #7C3AED, #EC4899);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.feature-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(124, 58, 237, 0.15), transparent 40%);
+  opacity: 0; transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-card:hover::after { opacity: 1; }
+.feature-card:hover {
+  transform: translateY(-6px);
+  background: rgba(30, 27, 75, 0.6);
+  box-shadow: 0 20px 50px rgba(124, 58, 237, 0.25), 0 0 0 1px rgba(124, 58, 237, 0.4);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+.feature-card:hover .feature-icon { transform: scale(1.1) rotate(-5deg); }
+.feature-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem; font-weight: 700;
+  color: #fff;
+}
+.feature-card p {
+  margin: 0; line-height: 1.8;
+  opacity: 0.85; font-size: 0.95rem;
+}
+
+/* 管理模式卡片 */
+.yi-manage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  margin: 1.5rem 0;
+}
+.yi-manage-card {
+  padding: 1.5rem 1.7rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  transition: all 0.3s ease;
+}
+.yi-manage-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 58, 237, 0.35);
+  box-shadow: 0 12px 35px rgba(26, 92, 255, 0.2);
+}
+.yi-manage-card h4 {
+  margin: 0 0 0.6rem 0;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1.05rem; color: #fff;
+}
+.yi-manage-card h4 .emoji { font-size: 1.3rem; }
+.yi-manage-card p { margin: 0; opacity: 0.8; line-height: 1.7; font-size: 0.92rem; }
+
+/* 进度条 */
+.yi-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin: 1.5rem 0;
+}
+.yi-progress-card {
+  padding: 1.4rem;
+  border-radius: 14px;
+  background: rgba(30, 27, 75, 0.4);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  transition: all 0.3s ease;
+}
+.yi-progress-card:hover { transform: translateY(-3px); border-color: rgba(124, 58, 237, 0.35); }
+.yi-progress-card h4 { margin: 0 0 0.8rem 0; font-weight: 700; font-size: 1.05rem; color: #fff; }
+.yi-progress-bar-wrapper {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.yi-progress-label { font-size: 0.8rem; opacity: 0.75; width: 90px; flex-shrink: 0; }
+.yi-progress-bar {
+  flex: 1; height: 6px;
+  background: rgba(26, 92, 255, 0.15);
+  border-radius: 3px; overflow: hidden;
+}
+.yi-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1A5CFF, #7C3AED, #EC4899);
+  border-radius: 3px;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+}
+
+/* 终端 */
+.yi-terminal {
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08);
+  margin: 2rem 0;
+  background: #0d1117;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+.yi-terminal-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.yi-terminal-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+.yi-terminal-dot:hover { transform: scale(1.3); }
+.yi-terminal-dot.red { background: #ff5f56; }
+.yi-terminal-dot.yellow { background: #ffbd2e; }
+.yi-terminal-dot.green { background: #27c93f; }
+.yi-terminal-title {
+  flex: 1; text-align: center;
+  font-size: 0.8rem; color: rgba(255,255,255,0.4);
+}
+.yi-terminal-body {
+  padding: 20px 24px;
+  font-size: 0.88rem; line-height: 1.7;
+  color: #c9d1d9;
+  overflow-x: auto;
+}
+.yi-terminal-line { display: flex; gap: 12px; white-space: pre; }
+.yi-terminal-prompt { color: #7C3AED; font-weight: 600; flex-shrink: 0; }
+.yi-terminal-command { color: #58a6ff; }
+.yi-terminal-output { color: #8b949e; }
+.yi-terminal-success { color: #3fb950; }
+.yi-terminal-comment { color: #6e7681; font-style: italic; }
+.yi-terminal-keyword { color: #ff7b72; }
+.yi-terminal-string { color: #a5d6ff; }
+.yi-terminal-function { color: #d2a8ff; }
+.yi-terminal-variable { color: #ffa657; }
+.yi-terminal-cursor {
+  display: inline-block; width: 8px; height: 1em;
+  background: #58a6ff; margin-left: 2px;
+  animation: blinkCursor 0.8s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+/* 时间线 */
+.yi-timeline { position: relative; padding: 2rem 0; margin: 2rem 0; }
+.yi-timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #1A5CFF, #7C3AED, #EC4899);
+  transform: translateX(-50%);
+}
+.yi-timeline-item { position: relative; display: flex; margin-bottom: 2.5rem; }
+.yi-timeline-item:nth-child(odd) { flex-direction: row; }
+.yi-timeline-item:nth-child(even) { flex-direction: row-reverse; }
+.yi-timeline-dot {
+  position: absolute;
+  left: 50%;
+  width: 18px; height: 18px;
+  background: linear-gradient(135deg, #1A5CFF, #7C3AED);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2), 0 0 20px rgba(26, 92, 255, 0.4);
+}
+.yi-timeline-content {
+  width: 45%;
+  padding: 1.5rem;
+  border-radius: 14px;
+  background: rgba(30, 27, 75, 0.4);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+.yi-timeline-content:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(26, 92, 255, 0.3);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.yi-timeline-content h4 {
+  margin: 0 0 0.4rem 0;
+  background: linear-gradient(135deg, #1A5CFF, #7C3AED);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+.yi-timeline-content p { margin: 0; opacity: 0.8; line-height: 1.7; font-size: 0.95rem; }
+@media (max-width: 768px) {
+  .yi-timeline::before { left: 20px; }
+  .yi-timeline-item, .yi-timeline-item:nth-child(even) { flex-direction: row; }
+  .yi-timeline-dot { left: 20px; }
+  .yi-timeline-content { width: 100%; margin-left: 45px; }
+}
+
+/* 滚动入场 */
+.yi-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.yi-reveal.yi-visible { opacity: 1; transform: translateY(0); }
+
+/* 纳新悬浮卡 */
+.yi-float-card {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 900;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 22px;
+  background: linear-gradient(135deg, #1A5CFF 0%, #7C3AED 100%);
+  border-radius: 50px;
+  color: #fff; text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
+  transition: all 0.3s ease;
+  animation: floatPulse 2.5s ease-in-out infinite;
+  opacity: 0; transform: translateY(20px);
+}
+.yi-float-card.yi-show { opacity: 1; transform: translateY(0); }
+.yi-float-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  color: #fff;
+  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.5), 0 0 60px rgba(26, 92, 255, 0.3);
+}
+.yi-float-card-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #22c55e;
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+@keyframes floatPulse {
+  0%, 100% { box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 0 rgba(124, 58, 237, 0.4); }
+  50% { box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 12px rgba(124, 58, 237, 0); }
+}
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* 底部 CTA */
+.cta-section {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.08), rgba(124, 58, 237, 0.08));
+  border-radius: 20px;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  margin: 3rem 0 2rem 0;
+}
+.cta-section p { font-size: 1.1rem; margin-bottom: 1.2rem; opacity: 0.8; }
+.cta-section .cta-buttons {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+}
+
+/* 页脚 */
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: 3rem;
+}
+
+/* 选中文字 */
+::selection { background: rgba(124, 58, 237, 0.5); color: #fff; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .hero-banner { padding: 3.5rem 1.5rem; }
+  .stat-bar { padding: 1.5rem 1rem; }
+  .stat-number { font-size: 2rem; }
+  .nav-links { gap: 16px; font-size: 0.85rem; }
+  .yi-float-card { padding: 10px 16px; font-size: 0.85rem; bottom: 16px; right: 16px; }
+  .yi-float-card span:last-child { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="yi-scroll-progress" id="progressBar"></div>
+
+<header class="md-header" id="header">
+  <div class="md-header__title">⚡ 逸工作室</div>
+  <ul class="nav-links">
+    <li><a href="#hero">首页</a></li>
+    <li><a href="#features">亮点</a></li>
+    <li><a href="#manage">管理</a></li>
+    <li><a href="#terminal">日常</a></li>
+    <li><a href="#timeline">历程</a></li>
+    <li><a href="#join">加入我们</a></li>
+  </ul>
+</header>
+
+<div class="container">
+
+  <div class="hero-banner" id="hero">
+    <h1 data-typing="以赛促学 · 智创未来">以赛促学 · 智创未来</h1>
+    <div class="hero-sub">
+      <span class="hero-tag">🏆 ICPC 实验室</span>
+      <span class="hero-tag">📅 2027 届纳新中</span>
+      <span class="hero-tag">📍 万寿楼 E313</span>
+    </div>
+    <p>逸工作室 | 科技与数据学院官方学术科技社团</p>
+    <div class="hero-buttons">
+      <a href="https://qm.qq.com/q/1021582644" class="hero-btn hero-btn-primary" target="_blank">🚀 加入QQ群 1021582644</a>
+      <a href="#join" class="hero-btn hero-btn-secondary">查看纳新详情</a>
+    </div>
+  </div>
+
+  <div class="stat-bar yi-reveal">
+    <div class="stat-item">
+      <div class="stat-number" data-count="2018">2018</div>
+      <div class="stat-label">成立年份</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-count="2" data-suffix="+">2+</div>
+      <div class="stat-label">核心部门</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-count="50" data-suffix="+">50+</div>
+      <div class="stat-label">活跃成员</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-count="15" data-suffix="+">15+</div>
+      <div class="stat-label">赛事获奖</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-count="2" data-suffix="+">2+</div>
+      <div class="stat-label">校内项目</div>
+    </div>
+  </div>
+
+  <h2 id="features">🎯 你能从逸工作室获得什么？</h2>
+  <div class="feature-grid yi-reveal">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>硬核算法能力</h3>
+      <p>系统学习算法与数据结构，蓝桥杯/ICPC 标准训练体系。考研复试、大厂笔试的核心竞争力。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛠️</div>
+      <h3>全栈开发经验</h3>
+      <p>真实项目驱动，从 Vue/React 前端到 Spring Boot 后端，完整走完需求→设计→开发→上线流程。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤝</div>
+      <h3>学长姐传帮带</h3>
+      <p>高年级学长一对一指导，经验、资料、资源全继承。没人卡壳，不怕掉队。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏆</div>
+      <h3>赛事实战机会</h3>
+      <p>蓝桥杯、ICPC/CCPC、软件杯、天梯赛、CSP 等。校内模拟赛 + 校外同步赛，名额优先。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💼</div>
+      <h3>简历 Portfolio</h3>
+      <p>竞赛奖项 + 项目经历双buff加持，春招秋招简历含金量直接翻倍。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎉</div>
+      <h3>有趣的社群</h3>
+      <p>周末线下 Coding Jam、技术分享会、团建聚餐。认识一群热爱代码的同好，大学生活不孤单。</p>
+    </div>
+  </div>
+
+  <h2 id="manage">🏢 我们的管理模式</h2>
+  <p style="opacity:0.75;">逸工作室经过多年发展，形成了一套<strong>扁平高效、传承有序</strong>的自运转管理体系：</p>
+  <div class="yi-manage-grid yi-reveal">
+    <div class="yi-manage-card">
+      <h4><span class="emoji">👑</span> 主任层</h4>
+      <p>由大三、大四的核心成员担任，对接学院老师，负责工作室整体规划与资源协调。</p>
+    </div>
+    <div class="yi-manage-card">
+      <h4><span class="emoji">🤖</span> 算法部部长</h4>
+      <p>负责算法训练体系、题库更新、赛前集训营组织。统筹蓝桥杯/ICPC 等赛事报名。</p>
+    </div>
+    <div class="yi-manage-card">
+      <h4><span class="emoji">💻</span> 开发部部长</h4>
+      <p>负责项目立项、技术选型、Code Review。对接校内信息化需求，落地真实项目。</p>
+    </div>
+    <div class="yi-manage-card">
+      <h4><span class="emoji">📚</span> 训练组组长</h4>
+      <p>每个小组由 2-3 名有经验的成员带领，每周固定训练日，组队打模拟赛。</p>
+    </div>
+    <div class="yi-manage-card">
+      <h4><span class="emoji">📢</span> 宣传组</h4>
+      <p>负责公众号运营、海报设计、纳新宣传、赛事战报输出。技术 + 设计复合能力。</p>
+    </div>
+    <div class="yi-manage-card">
+      <h4><span class="emoji">🔄</span> 周会制度</h4>
+      <p>每周一次例会，各部门汇报进展、协调资源、共享学习成果。信息透明，决策民主。</p>
+    </div>
+  </div>
+
+  <h2>📈 训练体系</h2>
+  <p style="opacity:0.75;">我们将成员的成长路径分成<strong>三个阶段</strong>，层层递进，让不同起点的同学都能跟上节奏：</p>
+  <div class="yi-progress-grid yi-reveal">
+    <div class="yi-progress-card">
+      <h4>🌱 入门阶段（0-3个月）</h4>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">语法 & STL</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 95%;"></div></div>
+      </div>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">基础算法</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 80%;"></div></div>
+      </div>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">简单开发</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 60%;"></div></div>
+      </div>
+    </div>
+    <div class="yi-progress-card">
+      <h4>🚀 进阶阶段（3-12个月）</h4>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">图论 & DP</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 85%;"></div></div>
+      </div>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">组队赛实战</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 75%;"></div></div>
+      </div>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">完整项目</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 70%;"></div></div>
+      </div>
+    </div>
+    <div class="yi-progress-card">
+      <h4>⭐ 高阶阶段（12个月+）</h4>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">高级数据结构</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 70%;"></div></div>
+      </div>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">赛事冲奖</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 80%;"></div></div>
+      </div>
+      <div class="yi-progress-bar-wrapper">
+        <span class="yi-progress-label">团队 Lead</span>
+        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 65%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="terminal">💻 我们的日常</h2>
+  <div class="yi-terminal yi-reveal">
+    <div class="yi-terminal-header">
+      <span class="yi-terminal-dot red"></span>
+      <span class="yi-terminal-dot yellow"></span>
+      <span class="yi-terminal-dot green"></span>
+      <span class="yi-terminal-title">yistudio@icpc-lab ~ zsh</span>
+    </div>
+    <div class="yi-terminal-body">
+      <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-command">git clone</span> <span class="yi-terminal-string">https://github.com/yi-studio-icpc/training.git</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-output">Cloning into 'training'... done ✓</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-command">icpc-train</span> <span class="yi-terminal-variable">--mode=contest</span> <span class="yi-terminal-variable">--today</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-comment"># 2026-09-07 周一 · 本周训练</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-success">✓</span> <span class="yi-terminal-output">Codeforces Round #1042 (Div. 2) 准备就绪</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-success">✓</span> <span class="yi-terminal-output">蓝桥杯省赛冲刺营 - 第 12 周</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-command">npm run</span> <span class="yi-terminal-variable">build</span> <span class="yi-terminal-comment"># 开发部项目部署</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-success">✓</span> <span class="yi-terminal-output">Build completed in 12.4s</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-function">yi recruit</span> <span class="yi-terminal-variable">--target=27级</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-success">🎉 逸工作室 27 级纳新已开启！</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-output">QQ 群: <span class="yi-terminal-string">1021582644</span>  |  地点: <span class="yi-terminal-string">万寿楼 E313</span></span><span class="yi-terminal-cursor"></span></div>
+    </div>
+  </div>
+
+  <h2 id="timeline">🕐 发展历程</h2>
+  <div class="yi-timeline yi-reveal">
+    <div class="yi-timeline-item">
+      <div class="yi-timeline-dot"></div>
+      <div class="yi-timeline-content">
+        <h4>2018 年 · ICPC 实验室成立</h4>
+        <p>由计算机系牵头组建，以算法竞赛为核心方向，开始组织同学参加蓝桥杯、ICPC 等赛事。</p>
+      </div>
+    </div>
+    <div class="yi-timeline-item">
+      <div class="yi-timeline-dot"></div>
+      <div class="yi-timeline-content">
+        <h4>2020 年 · 首获省级奖项</h4>
+        <p>组队参加蓝桥杯省赛，获得首枚省级一等奖。同年开辟校内模拟赛机制，形成训练传统。</p>
+      </div>
+    </div>
+    <div class="yi-timeline-item">
+      <div class="yi-timeline-dot"></div>
+      <div class="yi-timeline-content">
+        <h4>2022 年 · 改组为逸工作室</h4>
+        <p>增设开发部门，形成 <strong>算法 + 开发</strong> 双轮驱动模式。开始承接校内信息化项目。</p>
+      </div>
+    </div>
+    <div class="yi-timeline-item">
+      <div class="yi-timeline-dot"></div>
+      <div class="yi-timeline-content">
+        <h4>2024 年 · 成果集中爆发</h4>
+        <p>累计斩获省级以上奖项十余项。完成校内多个 Web 系统开发。活跃成员突破 50 人。</p>
+      </div>
+    </div>
+    <div class="yi-timeline-item">
+      <div class="yi-timeline-dot"></div>
+      <div class="yi-timeline-content">
+        <h4>2027 年 · 新征程，有你才完整</h4>
+        <p>面向 27 级新生开启新一轮纳新。期待你加入，一起写代码、打比赛、创造更多可能。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section yi-reveal" id="join">
+    <h2 style="padding-left:0; border-left:none;">📍 加入我们</h2>
+    <div style="display:flex; justify-content:center; gap:3rem; flex-wrap:wrap; margin:1.5rem 0; font-size:0.95rem;">
+      <div>
+        <div style="opacity:0.6; margin-bottom:4px;">工作室地址</div>
+        <div style="font-weight:700; color:#c4b5fd;">万寿楼(68号楼) E313</div>
+      </div>
+      <div>
+        <div style="opacity:0.6; margin-bottom:4px;">QQ 交流群</div>
+        <div style="font-weight:700; color:#a5b4fc; font-size:1.2rem;">1021582644</div>
+      </div>
+      <div>
+        <div style="opacity:0.6; margin-bottom:4px;">招新对象</div>
+        <div style="font-weight:700; color:#c4b5fd;">27级夏考 / 春考 / 专升本</div>
+      </div>
+    </div>
+    <p>还在等什么？27 级的你，我们在逸工作室等你！</p>
+    <div class="cta-buttons">
+      <a href="https://qm.qq.com/q/1021582644" class="hero-btn hero-btn-primary" target="_blank">🚀 立即加入 QQ 群 1021582644</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 逸工作室 · 以赛促学 · 智创未来</p>
+  <p style="margin-top:8px; font-size:0.85rem;">科技与数据学院官方学术科技社团</p>
+</footer>
+
+<a href="https://qm.qq.com/q/1021582644" target="_blank" class="yi-float-card" id="floatCard">
+  <span class="yi-float-card-dot"></span>
+  <span>27级纳新中</span>
+  <span>加入QQ群</span>
+</a>
+
+<script>
+(function () {
+  var progressBar = document.getElementById('progressBar');
+  var header = document.getElementById('header');
+  function onScroll() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = pct + '%';
+    if (header) {
+      if (scrollTop > 50) header.classList.add('scroll-transparent');
+      else header.classList.remove('scroll-transparent');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* Hero 3D */
+  var hero = document.getElementById('hero');
+  if (hero) {
+    var glow = document.createElement('div');
+    glow.className = 'hero-glow';
+    hero.appendChild(glow);
+    hero.addEventListener('mousemove', function (e) {
+      var r = hero.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width;
+      var y = (e.clientY - r.top) / r.height;
+      hero.style.transform = 'perspective(1200px) rotateX(' + ((0.5 - y) * 5).toFixed(2) + 'deg) rotateY(' + ((x - 0.5) * 5).toFixed(2) + 'deg)';
+      glow.style.left = (x * 100) + '%';
+      glow.style.top = (y * 100) + '%';
+      glow.style.transform = 'translate(-50%, -50%)';
+    });
+    hero.addEventListener('mouseleave', function () {
+      hero.style.transform = 'perspective(1200px) rotateX(0) rotateY(0)';
+    });
+  }
+
+  /* 打字机 */
+  document.querySelectorAll('[data-typing]').forEach(function (el) {
+    var text = el.getAttribute('data-typing') || el.textContent;
+    el.textContent = '';
+    var cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    el.appendChild(cursor);
+    function startType() {
+      var i = 0;
+      function step() {
+        if (i < text.length) {
+          el.insertBefore(document.createTextNode(text[i]), cursor);
+          i++;
+          setTimeout(step, 70 + Math.random() * 40);
+        }
+      }
+      step();
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          setTimeout(startType, 400);
+          obs.unobserve(el);
+        }
+      });
+    }, { threshold: 0.4 });
+    obs.observe(el);
+  });
+
+  /* 数字计数 */
+  var statObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var target = parseInt(el.getAttribute('data-count') || el.textContent);
+        var suffix = el.getAttribute('data-suffix') || '';
+        var start = performance.now();
+        function anim(now) {
+          var p = Math.min((now - start) / 1600, 1);
+          var e = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.floor(target * e) + suffix;
+          if (p < 1) requestAnimationFrame(anim);
+        }
+        requestAnimationFrame(anim);
+        statObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.stat-number').forEach(function (n) { statObs.observe(n); });
+
+  /* Feature Cards 3D */
+  document.querySelectorAll('.feature-card').forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var r = card.getBoundingClientRect();
+      var x = e.clientX - r.left;
+      var y = e.clientY - r.top;
+      var cx = r.width / 2, cy = r.height / 2;
+      var ry = ((x - cx) / cx * 4).toFixed(2);
+      var rx = ((cy - y) / cy * 4).toFixed(2);
+      card.style.transform = 'translateY(-6px) perspective(800px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+      card.style.setProperty('--mouse-x', x + 'px');
+      card.style.setProperty('--mouse-y', y + 'px');
+    });
+    card.addEventListener('mouseleave', function () { card.style.transform = ''; });
+  });
+
+  /* 滚动入场 */
+  var revealObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('yi-visible');
+        revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.yi-reveal').forEach(function (el) { revealObs.observe(el); });
+
+  /* 终端逐行 */
+  document.querySelectorAll('.yi-terminal').forEach(function (term) {
+    var lines = term.querySelectorAll('.yi-terminal-line');
+    lines.forEach(function (line) {
+      line.style.opacity = '0';
+      line.style.transform = 'translateX(-10px)';
+      line.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    });
+    var termObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          lines.forEach(function (line, idx) {
+            setTimeout(function () {
+              line.style.opacity = '1';
+              line.style.transform = 'translateX(0)';
+            }, idx * 200 + 200);
+          });
+          termObs.unobserve(term);
+        }
+      });
+    }, { threshold: 0.4 });
+    termObs.observe(term);
+  });
+
+  /* 进度条动画 */
+  document.querySelectorAll('.yi-progress-fill').forEach(function (bar) {
+    var target = bar.style.width || '0%';
+    bar.style.width = '0%';
+    var pObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          setTimeout(function () { bar.style.width = target; }, 200);
+          pObs.unobserve(bar);
+        }
+      });
+    }, { threshold: 0.3 });
+    pObs.observe(bar);
+  });
+
+  /* 时间线入场 */
+  document.querySelectorAll('.yi-timeline-item').forEach(function (item, idx) {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(40px)';
+    item.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    item.style.transitionDelay = (idx * 0.1) + 's';
+    var tObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+          tObs.unobserve(item);
+        }
+      });
+    }, { threshold: 0.2 });
+    tObs.observe(item);
+  });
+
+  /* 纳新悬浮卡 */
+  var fc = document.getElementById('floatCard');
+  if (fc) setTimeout(function () { fc.classList.add('yi-show'); }, 800);
+
+})();
+</script>
+
+</body>
+</html>

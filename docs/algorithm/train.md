@@ -1,5 +1,15 @@
 # 逸工作室训练手册
 
+<div class="hero-banner mini">
+  <h1 data-typing="训练手册 · 成长路线">训练手册 · 成长路线</h1>
+  <div class="hero-sub">
+    <span class="hero-tag">📘 学习路径</span>
+    <span class="hero-tag">🏋️ 刷题平台</span>
+    <span class="hero-tag">🎯 目标定位</span>
+  </div>
+  <p>从零基础到高阶选手的完整指南</p>
+</div>
+
 ## 前言
 
 算法学习是一条很长并且并不轻松的道路，但是将这条道路作为计算机学习的开始是值得的。学习算法可以很好地提升你的计算机素养，提高你的编码能力。本文档汇总了算法学习的经验和路径，希望能对你入门这条道路有所帮助！
@@ -93,3 +103,17 @@
 
 !!! important "跟着一本书 + 网络资源"
     强烈建议**跟着一本书，结合网络资源**的学习方式。零散看视频效率很低，系统学习 + 刷题才是王道。
+
+---
+
+## 📍 加入我们
+
+| 项目 | 信息 |
+| --- | --- |
+| **工作室地址** | 万寿楼(68号楼) E313 |
+| **QQ 交流群** | **1021582644** |
+| **招新对象** | 27级夏考 / 春考 / 专升本 |
+
+[:material-account-plus: 查看 27 级纳新详情](../join.md){ .md-button .md-button--primary }
+
+[:material-account-plus: 立即加入 QQ 群](https://qm.qq.com/q/1021582644){ .md-button target="_blank" }
