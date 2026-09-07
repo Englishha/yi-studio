@@ -1,90 +1,73 @@
-# Project Information
 site_name: 逸工作室
-site_description: 逸工作室 是一个算法爱好者交流的平台！
+site_description: 科技与数据学院 · 以赛促学创新实践社团 | ICPC实验室
 site_author: YI-studio Team
 site_url: https://yi-studio-icpc.github.io/yi-studio-icpc/
-strict: false
+copyright: Copyright &copy; 2026 逸工作室 · 以赛促学 · 智创未来
 
-# Contents
 nav:
-  - 简介: index.md
-  - 比赛相关:
-    - 比赛相关简介: algorithm/index.md
-    - 比赛训练: algorithm/train.md
+  - 首页: index.md
+  - 社团概览:
+    - 关于我们: about/intro.md
+    - 部门架构: about/teams.md
+  - 竞赛中心:
+    - 算法竞赛: algorithm/index.md
+    - 训练手册: algorithm/train.md
   - 通知公告:
     - 纳新公告: notice/new_in.md
+  - 加入我们: join.md
 
-
-
-# Theme
 theme:
-  name: 'material'
+  name: material
+  language: zh
   static_templates:
     - 404.html
-  language: 'zh'
+  logo: assets/logo.svg
+  favicon: assets/favicon.ico
+  icon:
+    logo: material/code-tags
   palette:
-    # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: black
-      accent: red
+      primary: indigo
+      accent: deep-purple
       toggle:
-        icon: material/weather-sunny
-        name: Switch to dark mode
-
-    # Palette toggle for dark mode
+        icon: material/brightness-7
+        name: 切换至深色模式
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: black
-      accent: blue
+      primary: indigo
+      accent: deep-purple
       toggle:
-        icon: material/weather-night
-        name: Switch to light mode
-  include_search_page: false
-  search_index_only: true
-  favicon: 'favicon.ico'
-  icon:
-    logo: 'material/school'
+        icon: material/brightness-4
+        name: 切换至浅色模式
   features:
     - navigation.tabs
-    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
   font:
-    text: 'Fira Sans'
-    code: 'Fira Mono'
+    text: 'Noto Sans SC'
+    code: 'JetBrains Mono'
 
-plugins: []
+plugins:
+  - search:
+      lang: zh
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
 
-# Customization
-extra:
-  disqus: 'YI-studio'
-  copyright: '<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh">CC BY-SA 4.0</a> 和 <a href="https://github.com/zTrix/sata-license">SATA</a>'
-  pagetime: 'on'
-  manifest: 'manifest.webmanifest'
-  githash: ''
-  analytics:
-    provider: google
-    property: UA-124485594-1
-
-extra_javascript:
-  - '_static/js/math-csr.js?math-csr'
-  - 'assets/vendor/mathjax/es5/tex-mml-chtml.js?math-csr'
-
-extra_css:
-  - '_static/css/extra.css?v=14'
-
-# Extensions
 markdown_extensions:
   - admonition
   - def_list
   - footnotes
   - meta
   - toc:
-      permalink: ""
+      permalink: true
       slugify: !!python/name:pymdownx.slugs.uslugify
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.caret
-  - pymdownx.critic
   - pymdownx.details
   - pymdownx.emoji:
       emoji_generator: !!python/name:pymdownx.emoji.to_svg
@@ -97,13 +80,25 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.progressbar
   - pymdownx.smartsymbols
-  - pymdownx.superfences:
-      custom_fences:
-        - name: math
-          class: arithmatex
-          format: !!python/name:pymdownx.arithmatex.fence_mathjax_format
+  - pymdownx.superfences
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.grid
+  - pymdownx.blocks.caption
+
+extra:
+  social:
+    - icon: material/github
+      link: https://github.com/yi-studio-icpc
+      name: GitHub
+  copyright: '<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh">CC BY-SA 4.0</a>'
+  generator: false
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
