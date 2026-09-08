@@ -76,15 +76,15 @@
 
 <div class="yi-manage-grid">
   <div class="yi-manage-card">
-    <h4><span class="emoji">👑</span> 主任层</h4>
+    <h4><span class="emoji">👑</span> 负责人</h4>
     <p>由大三、大四的核心成员担任，对接学院老师，负责工作室整体规划与资源协调。</p>
   </div>
   <div class="yi-manage-card">
-    <h4><span class="emoji">🤖</span> 算法部部长</h4>
+    <h4><span class="emoji">🤖</span> 算法组组长</h4>
     <p>负责算法训练体系、题库更新、赛前集训营组织。统筹蓝桥杯/ICPC 等赛事报名。</p>
   </div>
   <div class="yi-manage-card">
-    <h4><span class="emoji">💻</span> 开发部部长</h4>
+    <h4><span class="emoji">💻</span> 开发组组长</h4>
     <p>负责项目立项、技术选型、Code Review。对接校内信息化需求，落地真实项目。</p>
   </div>
   <div class="yi-manage-card">
@@ -190,6 +190,43 @@
   </div>
 </div>
 
+## 🏅 荣誉证书
+
+我们在各类赛事中屡获殊荣，用实力证明自己。
+
+<div class="yi-reward-grid">
+  <div class="feature-card yi-reward-card">
+    <div class="yi-reward-img" style="background-image:url('./image/reward/62f7754b2e0a89299ae8b326e07c8606.jpg');"></div>
+    <h3>蓝桥杯 · Python 组</h3>
+    <p>2025 · 省二等奖 · 工信部</p>
+  </div>
+  <div class="feature-card yi-reward-card">
+    <div class="yi-reward-img" style="background-image:url('./image/reward/0d5875cff682e1fc069ce8b74a3e0bc3.jpg');"></div>
+    <h3>蓝桥杯 · C++ 组</h3>
+    <p>2025 · 省二等奖 · 工信部</p>
+  </div>
+  <div class="feature-card yi-reward-card">
+    <div class="yi-reward-img" style="background-image:url('./image/reward/12057f470a084ac7b790f2803154ec7e.jpg');"></div>
+    <h3>蓝桥杯 · JAVA组</h3>
+    <p>2025 · 省一等奖 · 工信部</p>
+  </div>
+  <div class="feature-card yi-reward-card">
+    <div class="yi-reward-img" style="background-image:url('./image/reward/547c5f273f85b69ddf981bff90dca0e5.jpg');"></div>
+    <h3>全国高校计算机挑战赛</h3>
+    <p>2025 · 省一等奖 · CCF</p>
+  </div>
+  <div class="feature-card yi-reward-card">
+    <div class="yi-reward-img" style="background-image:url('./image/reward/a0543da3ded959c732d1766f05dc7257.jpg');"></div>
+    <h3>山东省大学生物理知识竞赛</h3>
+    <p>2023 · 省一等奖 · CCF</p>
+  </div>
+  <div class="feature-card yi-reward-card">
+    <div class="yi-reward-img" style="background-image:url('./image/reward/f6b3f87349de235a1d52ccfacd560cd1.jpg');"></div>
+    <h3>中青杯数学建模大赛/h3>
+    <p>2024 · 全国二等奖 · 未来设计师</p>
+  </div>
+</div>
+
 ## 🕐 发展历程
 
 <div class="yi-timeline">
@@ -218,7 +255,14 @@
     <div class="yi-timeline-dot"></div>
     <div class="yi-timeline-content">
       <h4>2024 年 · 成果集中爆发</h4>
-      <p>累计斩获省级以上奖项十余项。完成校内多个 Web 系统开发。活跃成员突破 50 人。</p>
+      <p>累计斩获省级以上奖项十余项。完成校内多个 Web 系统开发。活跃成员突破 40 人。</p>
+    </div>
+  </div>
+  <div class="yi-timeline-item">
+    <div class="yi-timeline-dot"></div>
+    <div class="yi-timeline-content">
+      <h4>2026 年 · 双轮驱动深化</h4>
+      <p>算法组蝉联蓝桥杯省一，开发组项目正式上线运营，训练体系全面升级。</p>
     </div>
   </div>
   <div class="yi-timeline-item">

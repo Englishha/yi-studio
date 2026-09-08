@@ -3,8 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>逸工作室 - 预览版</title>
+<title>逸工作室 · 27级纳新 | 沉浸式</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300..900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@property --yi-hue-start { syntax: '<number>'; inherits: false; initial-value: 215; }
+@property --yi-hue-end { syntax: '<number>'; inherits: false; initial-value: 280; }
+@property --yi-blur-bg { syntax: '<length>'; inherits: false; initial-value: 12px; }
+@property --yi-blur-card { syntax: '<length>'; inherits: false; initial-value: 10px; }
+@property --yi-scroll-pct { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --ease-spring { syntax: '*'; inherits: false; initial-value: cubic-bezier(0.34, 1.56, 0.64, 1); }
+@property --ease-smooth { syntax: '*'; inherits: false; initial-value: cubic-bezier(0.4, 0, 0.2, 1); }
+@property --dur-fast { syntax: '<time>'; inherits: false; initial-value: 0.2s; }
+@property --dur-mid { syntax: '<time>'; inherits: false; initial-value: 0.4s; }
+@property --dur-slow { syntax: '<time>'; inherits: false; initial-value: 0.8s; }
+@property --yi-wght { syntax: '<number>'; inherits: false; initial-value: 800; }
+@property --yi-mouse-x { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --yi-mouse-y { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --yi-overlay-opacity { syntax: '<number>'; inherits: false; initial-value: 0; }
+
 :root {
   --yi-blue: #1A5CFF;
   --yi-purple: #7C3AED;
@@ -14,42 +31,99 @@
   --yi-bg: #0A0E1A;
   --yi-text: #e2e8f0;
   --yi-text-dim: #94a3b8;
+  --yi-font: 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 0.2s;
+  --dur-mid: 0.4s;
+  --dur-slow: 0.8s;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: -apple-system, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: var(--yi-font);
   background: var(--yi-bg);
   color: var(--yi-text);
   line-height: 1.7;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0A0E1A 0%, #0f172a 100%);
+  overflow-x: hidden;
+  cursor: none;
 }
-.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+@media (hover: none), (pointer: coarse) { body { cursor: auto; } }
 
-/* 滚动进度条 */
+.yi-cursor {
+  position: fixed; top: 0; left: 0;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.8), rgba(26, 92, 255, 0.3));
+  border: 2px solid rgba(196, 181, 253, 0.6);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width var(--dur-mid) var(--ease-spring), height var(--dur-mid) var(--ease-spring), opacity var(--dur-fast);
+  mix-blend-mode: screen;
+}
+.yi-cursor-dot {
+  position: fixed; top: 0; left: 0;
+  width: 4px; height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+@media (hover: none), (pointer: coarse) { .yi-cursor, .yi-cursor-dot { display: none; } }
+.yi-cursor.hover { width: 48px; height: 48px; border-color: rgba(236, 72, 153, 0.8); }
+.yi-cursor.click { transform: translate(-50%, -50%) scale(0.6); }
+
+.yi-bg-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+}
+.yi-bg-fallback {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(26, 92, 255, 0.15), transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(124, 58, 237, 0.15), transparent 60%),
+    linear-gradient(180deg, #0A0E1A 0%, #0f172a 100%);
+  pointer-events: none;
+}
+.yi-noise-overlay {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
 .yi-scroll-progress {
   position: fixed; top: 0; left: 0;
   height: 3px; width: 0;
-  background: linear-gradient(90deg, #1A5CFF, #7C3AED, #EC4899);
+  background: linear-gradient(90deg, hsl(var(--yi-hue-start, 215), 100%, 60%), hsl(calc(var(--yi-hue-start, 215) + 30), 100%, 60%), hsl(var(--yi-hue-end, 280), 100%, 60%));
   z-index: 1000;
-  transition: width 0.1s ease-out;
-  box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+  transition: width 0.08s linear;
+  box-shadow: 0 0 14px hsla(var(--yi-hue-end, 280), 100%, 60%, 0.5);
 }
 
-/* 顶部导航 */
 .md-header {
   position: sticky; top: 0; z-index: 100;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(10, 14, 26, calc(0.7 + var(--yi-scroll-pct, 0) * 0.25));
+  backdrop-filter: blur(calc(14px - var(--yi-scroll-pct, 0) * 6px));
+  -webkit-backdrop-filter: blur(calc(14px - var(--yi-scroll-pct, 0) * 6px));
+  border-bottom: 1px solid rgba(255, 255, 255, calc(0.04 + var(--yi-scroll-pct, 0) * 0.12));
   padding: 0 24px;
   height: 64px;
   display: flex; align-items: center; justify-content: space-between;
-  transition: all 0.3s ease;
-}
-.md-header.scroll-transparent {
-  background: rgba(15, 23, 42, 0.7);
+  transition: background var(--dur-mid) var(--ease-smooth), backdrop-filter var(--dur-mid) var(--ease-smooth);
 }
 .md-header__title {
   font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px;
@@ -57,21 +131,31 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-variation-settings: 'wght' 800;
+  transition: font-variation-settings var(--dur-slow) var(--ease-smooth);
 }
 .nav-links { display: flex; gap: 28px; list-style: none; }
 .nav-links a {
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none; font-size: 0.95rem; font-weight: 500;
-  transition: color 0.2s; position: relative;
+  transition: color var(--dur-fast), font-variation-settings var(--dur-fast);
+  position: relative;
+  font-variation-settings: 'wght' 500;
 }
-.nav-links a:hover { color: #fff; }
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, #1A5CFF, #7C3AED);
+  transition: width var(--dur-mid) var(--ease-spring);
+}
+.nav-links a:hover { color: #fff; font-variation-settings: 'wght' 700; }
+.nav-links a:hover::after { width: 100%; }
 
-/* Hero Banner */
 .hero-banner {
   position: relative;
   text-align: center;
-  padding: 5.5rem 2rem;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  padding: 6rem 2rem 5rem;
   border-radius: 20px;
   color: #fff;
   margin: 2rem 0 3rem 0;
@@ -83,28 +167,29 @@ body {
   content: '';
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(26, 92, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(26, 92, 255, 0.08) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
-  animation: gridFloat 22s linear infinite;
+    linear-gradient(rgba(26, 92, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 92, 255, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  animation: gridFloat 24s linear infinite;
   z-index: 0;
 }
 @keyframes gridFloat {
   0% { background-position: 0 0; }
-  100% { background-position: 40px 40px; }
+  100% { background-position: 44px 44px; }
 }
 .hero-banner::after {
   content: '';
   position: absolute;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, hsla(var(--yi-hue-end, 280), 80%, 55%, 0.35) 0%, transparent 70%);
   top: -200px; right: -100px;
   border-radius: 50%;
   filter: blur(60px);
   animation: glowPulse 6s ease-in-out infinite;
   z-index: 0;
+  transition: background var(--dur-slow);
 }
 @keyframes glowPulse {
   0%, 100% { transform: scale(1); opacity: 0.6; }
@@ -113,24 +198,39 @@ body {
 .hero-banner .hero-glow {
   position: absolute;
   width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(26, 92, 255, 0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, hsla(var(--yi-hue-start, 215), 100%, 55%, 0.4) 0%, transparent 70%);
   bottom: -150px; left: -100px;
   border-radius: 50%;
   filter: blur(80px);
   animation: glowPulse 8s ease-in-out infinite reverse;
   z-index: 0;
+  transition: background var(--dur-slow);
+}
+
+.yi-hero-char-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-title-wrap {
+  position: relative;
+  z-index: 3;
 }
 .hero-banner h1 {
-  position: relative;
-  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-size: clamp(2.4rem, 7vw, 4.8rem);
   margin: 0 0 0.5rem 0;
-  font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   line-height: 1.2;
   background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 45%, #c4b5fd 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-variation-settings: 'wght' var(--yi-wght, 800);
+  transition: font-variation-settings 0.15s ease-out;
+  display: inline-block;
+  text-shadow: 0 0 80px rgba(196, 181, 253, calc(0.3 + (var(--yi-wght, 800) - 300) / 1500));
 }
 .hero-banner .typing-cursor {
   display: inline-block;
@@ -149,12 +249,14 @@ body {
   margin: 0.8rem auto 2rem auto;
   color: #e2e8f0;
   max-width: 600px;
+  z-index: 3;
 }
 .hero-banner .hero-sub {
   position: relative;
   display: flex; justify-content: center;
   gap: 0.6rem; flex-wrap: wrap;
   margin-bottom: 1.8rem;
+  z-index: 3;
 }
 .hero-banner .hero-tag {
   display: inline-block;
@@ -165,22 +267,25 @@ body {
   border: 1px solid rgba(124, 58, 237, 0.3);
   color: #c4b5fd;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .hero-banner .hero-buttons {
   position: relative;
   display: flex; gap: 1rem;
   justify-content: center; flex-wrap: wrap;
-  z-index: 2;
+  z-index: 3;
 }
 .hero-banner .hero-btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 14px 36px;
   border-radius: 50px;
   font-weight: 700; text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s var(--ease-spring);
   font-size: 1rem;
   position: relative; overflow: hidden;
+  cursor: none;
 }
+@media (hover: none), (pointer: coarse) { .hero-banner .hero-btn { cursor: auto; } }
 .hero-banner .hero-btn-primary {
   background: linear-gradient(135deg, #1A5CFF 0%, #7C3AED 100%);
   color: #fff;
@@ -192,30 +297,30 @@ body {
   50% { box-shadow: 0 4px 20px rgba(26, 92, 255, 0.5), 0 0 60px rgba(124, 58, 237, 0.4); }
 }
 .hero-banner .hero-btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 35px rgba(26, 92, 255, 0.6), 0 0 70px rgba(124, 58, 237, 0.5);
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 10px 40px rgba(26, 92, 255, 0.6), 0 0 80px rgba(124, 58, 237, 0.5);
 }
 .hero-banner .hero-btn-primary::after {
   content: '';
   position: absolute; top: 0; left: -100%;
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
   animation: shimmerBtn 3.5s ease-in-out infinite;
 }
 @keyframes shimmerBtn { 0% { left: -100%; } 60%, 100% { left: 100%; } }
 .hero-banner .hero-btn-secondary {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .hero-banner .hero-btn-secondary:hover {
-  background: rgba(255,255,255,0.15);
-  border-color: rgba(255,255,255,0.4);
-  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px) scale(1.04);
 }
 
-/* 统计栏 */
 .stat-bar {
   display: flex; justify-content: space-around;
   flex-wrap: wrap; gap: 1rem;
@@ -224,6 +329,9 @@ body {
   border-radius: 20px; margin: 2rem 0;
   border: 1px solid rgba(124, 58, 237, 0.15);
   position: relative; overflow: hidden;
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  transition: backdrop-filter var(--dur-slow);
 }
 .stat-bar::before {
   content: '';
@@ -245,6 +353,7 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.2;
+  font-variation-settings: 'wght' 900;
 }
 .stat-label {
   font-size: 0.95rem;
@@ -252,7 +361,6 @@ body {
   margin-top: 0.25rem; font-weight: 500;
 }
 
-/* 标题 */
 h2 {
   font-size: 1.8rem; font-weight: 800;
   margin: 3rem 0 1.5rem 0;
@@ -263,9 +371,9 @@ h2 {
   padding-left: 14px;
   border-left: 4px solid;
   border-image: linear-gradient(180deg, #1A5CFF, #7C3AED) 1;
+  font-variation-settings: 'wght' 800;
 }
 
-/* Feature Cards */
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -275,55 +383,343 @@ h2 {
 .feature-card {
   padding: 2rem;
   border-radius: 18px;
-  background: rgba(30, 27, 75, 0.4);
-  border: 1px solid rgba(124, 58, 237, 0.2);
-  backdrop-filter: blur(10px);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(30, 27, 75, 0.35);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  transition: all 0.5s var(--ease-spring);
   position: relative; overflow: hidden;
   transform-style: preserve-3d;
+  cursor: none;
 }
+@media (hover: none), (pointer: coarse) { .feature-card { cursor: auto; } }
 .feature-card::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0;
   height: 3px;
   background: linear-gradient(90deg, #1A5CFF, #7C3AED, #EC4899);
   transform: scaleX(0); transform-origin: left;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.5s var(--ease-spring);
 }
 .feature-card::after {
   content: '';
   position: absolute; inset: 0;
   background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(124, 58, 237, 0.15), transparent 40%);
+    rgba(124, 58, 237, 0.18), transparent 40%);
   opacity: 0; transition: opacity 0.4s ease;
   pointer-events: none;
+}
+.feature-card .scanning-light {
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(196, 181, 253, 0.9), transparent);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.6), 0 0 40px rgba(196, 181, 253, 0.3);
+  opacity: 0;
+  pointer-events: none;
+}
+.feature-card:hover .scanning-light {
+  animation: scanLine 1.2s ease-in-out;
+  opacity: 1;
+}
+@keyframes scanLine {
+  0% { left: -100%; top: 0; }
+  50% { left: 100%; top: 50%; }
+  100% { left: -100%; top: 100%; }
+}
+.yi-reward-grid {
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+@media (max-width: 900px) { .yi-reward-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .yi-reward-grid { grid-template-columns: 1fr; } }
+.yi-reward-group { margin-bottom: 1.8rem; }
+.yi-reward-group:last-child { margin-bottom: 0; }
+.yi-reward-group-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.92rem; font-weight: 600;
+  color: #E2E8F0;
+  padding: 12px 18px;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, rgba(124,58,237,0.18), rgba(124,58,237,0.04), transparent);
+  border-left: 3px solid #7C3AED;
+  border-radius: 0 10px 10px 0;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+.yi-reward-group-title::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(124,58,237,0.35), transparent);
+  margin-left: 8px;
+}
+.yi-reward-card { cursor: zoom-in; position: relative; padding: 1.2rem; }
+.yi-reward-tag {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 5;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.yi-reward-tag-gold {
+  background: linear-gradient(135deg, rgba(245,158,11,0.88), rgba(251,191,36,0.82));
+  color: #4A2E00;
+  box-shadow: 0 2px 10px rgba(251,191,36,0.4);
+  border: 1px solid rgba(253,230,138,0.65);
+}
+.yi-reward-tag-silver {
+  background: linear-gradient(135deg, rgba(148,163,184,0.88), rgba(203,213,225,0.78));
+  color: #1E293B;
+  box-shadow: 0 2px 10px rgba(148,163,184,0.35);
+  border: 1px solid rgba(226,232,240,0.55);
+}
+.yi-reward-card .yi-reward-img {
+  width: 100%; height: 260px;
+  border-radius: 10px;
+  margin-bottom: 0.8rem;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0,0,0,0.25);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.08);
+  transition: transform 0.5s var(--ease-spring), box-shadow 0.5s ease;
+}
+.yi-reward-card:hover .yi-reward-img {
+  transform: scale(1.02);
+  box-shadow: 0 10px 36px rgba(124, 58, 237, 0.45), inset 0 0 0 1px rgba(251, 191, 36, 0.3);
+}
+.yi-reward-card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  line-height: 1.35;
+  color: #F1F5F9;
+}
+.yi-reward-card p {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin: 0;
+}
+.yi-reward-modal {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s var(--ease-smooth);
+}
+.yi-reward-modal.open {
+  opacity: 1; pointer-events: auto;
+}
+.yi-reward-modal-inner {
+  position: relative;
+  max-width: 85vw; max-height: 88vh;
+  display: flex; flex-direction: column; align-items: center;
+  transform: scale(0.88);
+  transition: transform 0.4s var(--ease-spring);
+}
+.yi-reward-modal.open .yi-reward-modal-inner { transform: scale(1); }
+.yi-reward-modal-inner img {
+  max-width: 100%; max-height: 78vh;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(124, 58, 237, 0.45);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+.yi-reward-close {
+  position: absolute; top: -48px; right: 0;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease;
+}
+.yi-reward-close:hover { background: rgba(239, 68, 68, 0.8); border-color: #ef4444; transform: rotate(90deg); }
+.yi-reward-modal-caption {
+  margin-top: 1rem;
+  color: #E2E8F0;
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.5;
+}
+.feature-card .yi-dark-pattern {
+  position: absolute; inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M10 40 Q20 20 40 20 Q60 20 70 40 Q60 60 40 60 Q20 60 10 40Z' fill='none' stroke='%23a5b4fc' stroke-width='0.5'/%3E%3Ccircle cx='40' cy='40' r='8' fill='none' stroke='%23a5b4fc' stroke-width='0.3'/%3E%3Cpath d='M30 10 L40 5 L50 10' fill='none' stroke='%23a5b4fc' stroke-width='0.4'/%3E%3Cpath d='M30 70 L40 75 L50 70' fill='none' stroke='%23a5b4fc' stroke-width='0.4'/%3E%3C/svg%3E");
 }
 .feature-card:hover::before { transform: scaleX(1); }
 .feature-card:hover::after { opacity: 1; }
 .feature-card:hover {
-  transform: translateY(-6px);
-  background: rgba(30, 27, 75, 0.6);
-  box-shadow: 0 20px 50px rgba(124, 58, 237, 0.25), 0 0 0 1px rgba(124, 58, 237, 0.4);
-  border-color: rgba(124, 58, 237, 0.4);
+  transform: translateY(-10px) scale(1.03);
+  background: rgba(30, 27, 75, 0.55);
+  box-shadow: 0 25px 60px rgba(124, 58, 237, 0.3), 0 0 0 1px rgba(124, 58, 237, 0.45);
+  border-color: rgba(124, 58, 237, 0.45);
 }
 .feature-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   display: inline-block;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s var(--ease-spring);
 }
-.feature-card:hover .feature-icon { transform: scale(1.1) rotate(-5deg); }
+.feature-card:hover .feature-icon { transform: scale(1.15) rotate(-8deg); }
 .feature-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1.3rem; font-weight: 700;
   color: #fff;
+  font-variation-settings: 'wght' 700;
 }
 .feature-card p {
   margin: 0; line-height: 1.8;
   opacity: 0.85; font-size: 0.95rem;
 }
 
-/* 管理模式卡片 */
+.yi-talent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+.yi-talent-card {
+  padding: 1.8rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.08) 0%, rgba(124, 58, 237, 0.12) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  transition: all 0.5s var(--ease-spring);
+  position: relative; overflow: hidden;
+}
+.yi-talent-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M20 60 Q35 30 60 30 Q85 30 100 60 Q85 90 60 90 Q35 90 20 60Z' fill='none' stroke='%237C3AED' stroke-width='0.3' opacity='0.5'/%3E%3Cpath d='M40 20 L60 10 L80 20 M40 100 L60 110 L80 100' fill='none' stroke='%23EC4899' stroke-width='0.3' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  pointer-events: none;
+}
+.yi-talent-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(26, 92, 255, 0.3);
+  border-color: rgba(196, 181, 253, 0.5);
+}
+.yi-talent-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.yi-talent-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.3), rgba(124, 58, 237, 0.3));
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  font-size: 0.75rem;
+  color: #c4b5fd;
+  font-weight: 600;
+}
+.yi-talent-icon { font-size: 2rem; }
+.yi-talent-name {
+  font-size: 1.25rem; font-weight: 800; color: #fff;
+  margin-bottom: 0.2rem;
+  font-variation-settings: 'wght' 800;
+}
+.yi-talent-desc {
+  font-size: 0.9rem; opacity: 0.8; line-height: 1.6;
+  margin-bottom: 1.2rem;
+}
+.yi-xp-bar {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+}
+.yi-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06B6D4, #1A5CFF, #7C3AED, #EC4899);
+  background-size: 200% 100%;
+  border-radius: 5px;
+  transition: width 1.5s var(--ease-spring);
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
+  animation: xpShimmer 3s linear infinite;
+}
+@keyframes xpShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.yi-xp-info {
+  display: flex; justify-content: space-between;
+  margin-top: 8px; font-size: 0.8rem;
+}
+.yi-xp-label { color: rgba(255, 255, 255, 0.6); }
+.yi-xp-value { color: #c4b5fd; font-weight: 700; }
+.yi-talent-skill {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 1rem;
+}
+.yi-talent-skill span {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  color: #a5b4fc;
+}
+
+.yi-wall-section {
+  position: relative;
+  padding: 2rem 0;
+}
+.yi-tagcloud-canvas {
+  width: 100%; height: 320px;
+  position: relative;
+  perspective: 800px;
+}
+.yi-tagcloud-item {
+  position: absolute;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.2), rgba(124, 58, 237, 0.2));
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.4s var(--ease-spring);
+  white-space: nowrap;
+  cursor: none;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
+}
+@media (hover: none), (pointer: coarse) { .yi-tagcloud-item { cursor: auto; } }
+.yi-tagcloud-item:hover {
+  transform: scale(1.15) !important;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(124, 58, 237, 0.3));
+  border-color: rgba(236, 72, 153, 0.6);
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.3);
+  z-index: 10;
+}
+.yi-tagcloud-item .quote-icon {
+  color: #c4b5fd; font-weight: 800; margin-right: 4px;
+}
+.yi-tagcloud-item .author-tag {
+  margin-left: 6px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  opacity: 0.8;
+}
+
 .yi-manage-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -335,22 +731,32 @@ h2 {
   border-radius: 16px;
   background: linear-gradient(135deg, rgba(26, 92, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
   border: 1px solid rgba(124, 58, 237, 0.15);
-  transition: all 0.3s ease;
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  transition: all 0.4s var(--ease-spring);
+  position: relative; overflow: hidden;
+}
+.yi-manage-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(196, 181, 253, 0.06), transparent 40%);
+  pointer-events: none;
 }
 .yi-manage-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(124, 58, 237, 0.35);
-  box-shadow: 0 12px 35px rgba(26, 92, 255, 0.2);
+  transform: translateY(-6px);
+  border-color: rgba(124, 58, 237, 0.4);
+  box-shadow: 0 15px 40px rgba(26, 92, 255, 0.25);
 }
 .yi-manage-card h4 {
   margin: 0 0 0.6rem 0;
   display: flex; align-items: center; gap: 8px;
   font-size: 1.05rem; color: #fff;
+  font-variation-settings: 'wght' 700;
 }
 .yi-manage-card h4 .emoji { font-size: 1.3rem; }
 .yi-manage-card p { margin: 0; opacity: 0.8; line-height: 1.7; font-size: 0.92rem; }
 
-/* 进度条 */
 .yi-progress-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -360,12 +766,14 @@ h2 {
 .yi-progress-card {
   padding: 1.4rem;
   border-radius: 14px;
-  background: rgba(30, 27, 75, 0.4);
-  border: 1px solid rgba(124, 58, 237, 0.2);
-  transition: all 0.3s ease;
+  background: rgba(30, 27, 75, 0.35);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  transition: all 0.4s var(--ease-spring);
 }
-.yi-progress-card:hover { transform: translateY(-3px); border-color: rgba(124, 58, 237, 0.35); }
-.yi-progress-card h4 { margin: 0 0 0.8rem 0; font-weight: 700; font-size: 1.05rem; color: #fff; }
+.yi-progress-card:hover { transform: translateY(-5px); border-color: rgba(124, 58, 237, 0.4); }
+.yi-progress-card h4 { margin: 0 0 0.8rem 0; font-weight: 700; font-size: 1.05rem; color: #fff; font-variation-settings: 'wght' 700; }
 .yi-progress-bar-wrapper {
   display: flex; align-items: center; gap: 10px;
   margin-bottom: 8px;
@@ -380,14 +788,13 @@ h2 {
   height: 100%;
   background: linear-gradient(90deg, #1A5CFF, #7C3AED, #EC4899);
   border-radius: 3px;
-  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 1.5s var(--ease-spring);
   box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
 }
 
-/* 终端 */
 .yi-terminal {
   border-radius: 14px; overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08);
   margin: 2rem 0;
   background: #0d1117;
   font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
@@ -396,7 +803,7 @@ h2 {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 16px;
   background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .yi-terminal-dot {
   width: 12px; height: 12px; border-radius: 50%;
@@ -408,7 +815,7 @@ h2 {
 .yi-terminal-dot.green { background: #27c93f; }
 .yi-terminal-title {
   flex: 1; text-align: center;
-  font-size: 0.8rem; color: rgba(255,255,255,0.4);
+  font-size: 0.8rem; color: rgba(255, 255, 255, 0.4);
 }
 .yi-terminal-body {
   padding: 20px 24px;
@@ -433,7 +840,6 @@ h2 {
   vertical-align: text-bottom;
 }
 
-/* 时间线 */
 .yi-timeline { position: relative; padding: 2rem 0; margin: 2rem 0; }
 .yi-timeline::before {
   content: '';
@@ -460,15 +866,16 @@ h2 {
   width: 45%;
   padding: 1.5rem;
   border-radius: 14px;
-  background: rgba(30, 27, 75, 0.4);
+  background: rgba(30, 27, 75, 0.35);
   border: 1px solid rgba(124, 58, 237, 0.2);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  transition: all 0.4s var(--ease-spring);
 }
 .yi-timeline-content:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 40px rgba(26, 92, 255, 0.3);
-  border-color: rgba(124, 58, 237, 0.4);
+  transform: translateY(-5px);
+  box-shadow: 0 18px 45px rgba(26, 92, 255, 0.3);
+  border-color: rgba(124, 58, 237, 0.45);
 }
 .yi-timeline-content h4 {
   margin: 0 0 0.4rem 0;
@@ -477,6 +884,7 @@ h2 {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
+  font-variation-settings: 'wght' 700;
 }
 .yi-timeline-content p { margin: 0; opacity: 0.8; line-height: 1.7; font-size: 0.95rem; }
 @media (max-width: 768px) {
@@ -486,16 +894,139 @@ h2 {
   .yi-timeline-content { width: 100%; margin-left: 45px; }
 }
 
-/* 滚动入场 */
 .yi-reveal {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.8s var(--ease-smooth),
+              transform 0.8s var(--ease-spring);
 }
 .yi-reveal.yi-visible { opacity: 1; transform: translateY(0); }
 
-/* 纳新悬浮卡 */
+.yi-countdown-bar {
+  margin: 1rem 0 0.5rem;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(124, 58, 237, 0.12));
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  position: relative; overflow: hidden;
+}
+.yi-countdown-bar::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.1), transparent);
+  animation: countShimmer 3s ease-in-out infinite;
+}
+@keyframes countShimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+.yi-countdown-row {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 10px;
+  font-size: 0.9rem;
+  position: relative; z-index: 1;
+}
+.yi-countdown-deadline {
+  color: #fda4af; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.yi-countdown-deadline .yi-clock-icon { animation: clockTick 1s ease-in-out infinite; }
+@keyframes clockTick { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(15deg); } }
+.yi-countdown-joined {
+  color: #86efac; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.yi-countdown-progress {
+  margin-top: 10px;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative; z-index: 1;
+}
+.yi-countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #EC4899, #7C3AED);
+  border-radius: 3px;
+  transition: width 1s var(--ease-spring);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.5);
+}
+
+.cta-section {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.08), rgba(124, 58, 237, 0.08));
+  border-radius: 20px;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  backdrop-filter: blur(var(--yi-blur-card, 10px));
+  -webkit-backdrop-filter: blur(var(--yi-blur-card, 10px));
+  margin: 3rem 0 2rem 0;
+}
+.cta-section h2 { padding-left: 0; border-left: none; }
+.cta-section p { font-size: 1.1rem; margin-bottom: 1.2rem; opacity: 0.8; }
+.cta-section .cta-buttons {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+}
+.yi-copy-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1.5px solid rgba(196, 181, 253, 0.4);
+  backdrop-filter: blur(10px);
+  font-weight: 600; font-size: 0.95rem;
+  cursor: none;
+  transition: all 0.4s var(--ease-spring);
+  font-family: inherit;
+}
+@media (hover: none), (pointer: coarse) { .yi-copy-btn { cursor: pointer; } }
+.yi-copy-btn:hover {
+  background: rgba(196, 181, 253, 0.15);
+  border-color: rgba(196, 181, 253, 0.7);
+  transform: scale(1.05);
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 3rem;
+}
+
+::selection { background: rgba(124, 58, 237, 0.5); color: #fff; }
+
+.yi-toast {
+  position: fixed;
+  top: 80px; right: 24px;
+  padding: 14px 22px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(26, 92, 255, 0.95), rgba(124, 58, 237, 0.95));
+  backdrop-filter: blur(20px);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 10px 40px rgba(124, 58, 237, 0.5);
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  z-index: 9998;
+  transform: translateX(120%);
+  transition: transform 0.5s var(--ease-spring), opacity 0.3s;
+  display: flex; align-items: center; gap: 8px;
+}
+.yi-toast.yi-show { transform: translateX(0); }
+.yi-toast.yi-hide { opacity: 0; transform: translateX(120%); }
+
+.yi-particle-burst {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  width: 300px; height: 300px;
+  transform: translate(-50%, -50%);
+}
+.yi-particle-burst canvas { width: 100%; height: 100%; }
+
 .yi-float-card {
   position: fixed; bottom: 24px; right: 24px;
   z-index: 900;
@@ -505,16 +1036,18 @@ h2 {
   border-radius: 50px;
   color: #fff; text-decoration: none;
   font-weight: 700;
-  box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.4s var(--ease-spring);
   animation: floatPulse 2.5s ease-in-out infinite;
   opacity: 0; transform: translateY(20px);
+  cursor: none;
 }
+@media (hover: none), (pointer: coarse) { .yi-float-card { cursor: pointer; } }
 .yi-float-card.yi-show { opacity: 1; transform: translateY(0); }
 .yi-float-card:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-6px) scale(1.04);
   color: #fff;
-  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.5), 0 0 60px rgba(26, 92, 255, 0.3);
+  box-shadow: 0 14px 45px rgba(124, 58, 237, 0.5), 0 0 80px rgba(26, 92, 255, 0.3);
 }
 .yi-float-card-dot {
   width: 10px; height: 10px; border-radius: 50%;
@@ -523,42 +1056,62 @@ h2 {
 }
 @keyframes floatPulse {
   0%, 100% { box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 0 rgba(124, 58, 237, 0.4); }
-  50% { box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 12px rgba(124, 58, 237, 0); }
+  50% { box-shadow: 0 8px 30px rgba(26, 92, 255, 0.4), 0 0 0 14px rgba(124, 58, 237, 0); }
 }
 @keyframes dotPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 0.5; transform: scale(0.7); }
 }
 
-/* 底部 CTA */
-.cta-section {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: linear-gradient(135deg, rgba(26, 92, 255, 0.08), rgba(124, 58, 237, 0.08));
+.yi-mobile-refresh {
+  position: fixed;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
   border-radius: 20px;
-  border: 1px solid rgba(124, 58, 237, 0.2);
-  margin: 3rem 0 2rem 0;
+  background: rgba(30, 27, 75, 0.9);
+  backdrop-filter: blur(20px);
+  color: #c4b5fd;
+  font-size: 0.85rem;
+  z-index: 999;
+  transition: top 0.3s var(--ease-spring);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  display: none;
 }
-.cta-section p { font-size: 1.1rem; margin-bottom: 1.2rem; opacity: 0.8; }
-.cta-section .cta-buttons {
-  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+@media (hover: none), (pointer: coarse) {
+  .yi-mobile-refresh { display: block; }
 }
+.yi-mobile-refresh.yi-active { top: 80px; }
 
-/* 页脚 */
-footer {
-  text-align: center;
-  padding: 2rem;
-  color: rgba(255,255,255,0.5);
-  font-size: 0.9rem;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  border-top: 1px solid rgba(255,255,255,0.08);
-  margin-top: 3rem;
+.yi-fps-indicator {
+  position: fixed;
+  bottom: 20px; left: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  z-index: 9999;
+  pointer-events: none;
+  display: none;
 }
+body[data-show-fps="true"] .yi-fps-indicator { display: block; }
 
-/* 选中文字 */
-::selection { background: rgba(124, 58, 237, 0.5); color: #fff; }
+.yi-degraded-badge {
+  position: fixed;
+  top: 80px; left: 20px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(51, 65, 85, 0.85);
+  backdrop-filter: blur(10px);
+  color: #94a3b8;
+  font-size: 0.75rem;
+  z-index: 999;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+body[data-degraded="true"] .yi-degraded-badge { opacity: 1; }
 
-/* 响应式 */
 @media (max-width: 768px) {
   .hero-banner { padding: 3.5rem 1.5rem; }
   .stat-bar { padding: 1.5rem 1rem; }
@@ -566,10 +1119,21 @@ footer {
   .nav-links { gap: 16px; font-size: 0.85rem; }
   .yi-float-card { padding: 10px 16px; font-size: 0.85rem; bottom: 16px; right: 16px; }
   .yi-float-card span:last-child { display: none; }
+  .md-header { height: 56px; padding: 0 16px; }
+  .md-header__title { font-size: 1.2rem; }
+  .hero-banner h1 { letter-spacing: 1px; }
+  .yi-tagcloud-canvas { height: 240px; }
 }
 </style>
 </head>
 <body>
+
+<canvas class="yi-bg-canvas" id="bgCanvas"></canvas>
+<div class="yi-bg-fallback" id="bgFallback" style="display:none;"></div>
+<div class="yi-noise-overlay"></div>
+
+<div class="yi-cursor" id="cursor"></div>
+<div class="yi-cursor-dot" id="cursorDot"></div>
 
 <div class="yi-scroll-progress" id="progressBar"></div>
 
@@ -578,26 +1142,32 @@ footer {
   <ul class="nav-links">
     <li><a href="#hero">首页</a></li>
     <li><a href="#features">亮点</a></li>
-    <li><a href="#manage">管理</a></li>
+    <li><a href="#talent">天赋</a></li>
+    <li><a href="#wall">感言</a></li>
     <li><a href="#terminal">日常</a></li>
     <li><a href="#timeline">历程</a></li>
-    <li><a href="#join">加入我们</a></li>
+    <li><a href="#join">加入</a></li>
   </ul>
 </header>
+
+<div class="yi-mobile-refresh" id="mobileRefresh">↓ 松手刷新纳新状态</div>
 
 <div class="container">
 
   <div class="hero-banner" id="hero">
-    <h1 data-typing="以赛促学 · 智创未来">以赛促学 · 智创未来</h1>
-    <div class="hero-sub">
-      <span class="hero-tag">🏆 ICPC 实验室</span>
-      <span class="hero-tag">📅 2027 届纳新中</span>
-      <span class="hero-tag">📍 万寿楼 E313</span>
-    </div>
-    <p>逸工作室 | 科技与数据学院官方学术科技社团</p>
-    <div class="hero-buttons">
-      <a href="https://qm.qq.com/q/1021582644" class="hero-btn hero-btn-primary" target="_blank">🚀 加入QQ群 1021582644</a>
-      <a href="#join" class="hero-btn hero-btn-secondary">查看纳新详情</a>
+    <canvas class="yi-hero-char-canvas" id="charCanvas"></canvas>
+    <div class="hero-title-wrap">
+      <h1 data-typing="以赛促学 · 智创未来">以赛促学 · 智创未来</h1>
+      <div class="hero-sub">
+        <span class="hero-tag">🏆 ICPC 实验室</span>
+        <span class="hero-tag">📅 2027 届纳新中</span>
+        <span class="hero-tag">📍 万寿楼 E313</span>
+      </div>
+      <p>逸工作室 | 科技与数据学院官方学术科技社团</p>
+      <div class="hero-buttons">
+        <a href="https://qm.qq.com/q/1021582644" class="hero-btn hero-btn-primary" target="_blank" data-burst="true">🚀 加入QQ群 1021582644</a>
+        <a href="#join" class="hero-btn hero-btn-secondary">查看纳新详情</a>
+      </div>
     </div>
   </div>
 
@@ -627,129 +1197,137 @@ footer {
   <h2 id="features">🎯 你能从逸工作室获得什么？</h2>
   <div class="feature-grid yi-reveal">
     <div class="feature-card">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
       <div class="feature-icon">🧠</div>
       <h3>硬核算法能力</h3>
       <p>系统学习算法与数据结构，蓝桥杯/ICPC 标准训练体系。考研复试、大厂笔试的核心竞争力。</p>
     </div>
     <div class="feature-card">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
       <div class="feature-icon">🛠️</div>
       <h3>全栈开发经验</h3>
       <p>真实项目驱动，从 Vue/React 前端到 Spring Boot 后端，完整走完需求→设计→开发→上线流程。</p>
     </div>
     <div class="feature-card">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
       <div class="feature-icon">🤝</div>
-      <h3>学长姐传帮带</h3>
-      <p>高年级学长一对一指导，经验、资料、资源全继承。没人卡壳，不怕掉队。</p>
+      <h3>学长学姐帮传帮带</h3>
+      <p>高年级学长学姐一对一指导，经验、资料、资源全继承。没人卡壳，不怕掉队。</p>
     </div>
     <div class="feature-card">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
       <div class="feature-icon">🏆</div>
       <h3>赛事实战机会</h3>
       <p>蓝桥杯、ICPC/CCPC、软件杯、天梯赛、CSP 等。校内模拟赛 + 校外同步赛，名额优先。</p>
     </div>
     <div class="feature-card">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
       <div class="feature-icon">💼</div>
       <h3>简历 Portfolio</h3>
       <p>竞赛奖项 + 项目经历双buff加持，春招秋招简历含金量直接翻倍。</p>
     </div>
     <div class="feature-card">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
       <div class="feature-icon">🎉</div>
       <h3>有趣的社群</h3>
       <p>周末线下 Coding Jam、技术分享会、团建聚餐。认识一群热爱代码的同好，大学生活不孤单。</p>
     </div>
   </div>
 
-  <h2 id="manage">🏢 我们的管理模式</h2>
-  <p style="opacity:0.75;">逸工作室经过多年发展，形成了一套<strong>扁平高效、传承有序</strong>的自运转管理体系：</p>
-  <div class="yi-manage-grid yi-reveal">
-    <div class="yi-manage-card">
-      <h4><span class="emoji">👑</span> 主任层</h4>
-      <p>由大三、大四的核心成员担任，对接学院老师，负责工作室整体规划与资源协调。</p>
+  <h2 id="talent">⚔️ 天赋加点 · 选你的赛道</h2>
+  <p style="opacity:0.75;">加入工作室 = 进入角色养成系统。选择你的天赋树，组队闯关升级：</p>
+  <div class="yi-talent-grid yi-reveal">
+    <div class="yi-talent-card">
+      <div class="yi-talent-header"><div class="yi-talent-badge">LV.1 可解锁</div><div class="yi-talent-icon">🧠</div></div>
+      <div class="yi-talent-name">算法战力天赋</div>
+      <div class="yi-talent-desc">从 0 到 ICPC，系统化训练路径。适合喜欢逻辑推理、享受 AC 快感的你。</div>
+      <div class="yi-xp-bar"><div class="yi-xp-fill" style="width:45%;"></div></div>
+      <div class="yi-xp-info"><span class="yi-xp-label">当前经验</span><span class="yi-xp-value">450 / 1000 XP</span></div>
+      <div class="yi-talent-skill"><span>C++</span><span>数据结构</span><span>图论</span><span>DP</span></div>
     </div>
-    <div class="yi-manage-card">
-      <h4><span class="emoji">🤖</span> 算法部部长</h4>
-      <p>负责算法训练体系、题库更新、赛前集训营组织。统筹蓝桥杯/ICPC 等赛事报名。</p>
+    <div class="yi-talent-card">
+      <div class="yi-talent-header"><div class="yi-talent-badge">LV.1 可解锁</div><div class="yi-talent-icon">💻</div></div>
+      <div class="yi-talent-name">视觉/交互天赋（前端）</div>
+      <div class="yi-talent-desc">把想法变成看得见的界面。Vue / React / Three.js，打造炫酷 Web 体验。</div>
+      <div class="yi-xp-bar"><div class="yi-xp-fill" style="width:35%;"></div></div>
+      <div class="yi-xp-info"><span class="yi-xp-label">当前经验</span><span class="yi-xp-value">350 / 1000 XP</span></div>
+      <div class="yi-talent-skill"><span>HTML</span><span>CSS</span><span>Vue</span><span>交互设计</span></div>
     </div>
-    <div class="yi-manage-card">
-      <h4><span class="emoji">💻</span> 开发部部长</h4>
-      <p>负责项目立项、技术选型、Code Review。对接校内信息化需求，落地真实项目。</p>
+    <div class="yi-talent-card">
+      <div class="yi-talent-header"><div class="yi-talent-badge">LV.2 可解锁</div><div class="yi-talent-icon">⚙️</div></div>
+      <div class="yi-talent-name">后端工程天赋</div>
+      <div class="yi-talent-desc">承接校内真实项目，Spring Boot + 数据库 + 部署，全链路打通。</div>
+      <div class="yi-xp-bar"><div class="yi-xp-fill" style="width:25%;"></div></div>
+      <div class="yi-xp-info"><span class="yi-xp-label">当前经验</span><span class="yi-xp-value">250 / 1000 XP</span></div>
+      <div class="yi-talent-skill"><span>Java</span><span>MySQL</span><span>API</span><span>Linux</span></div>
     </div>
-    <div class="yi-manage-card">
-      <h4><span class="emoji">📚</span> 训练组组长</h4>
-      <p>每个小组由 2-3 名有经验的成员带领，每周固定训练日，组队打模拟赛。</p>
-    </div>
-    <div class="yi-manage-card">
-      <h4><span class="emoji">📢</span> 宣传组</h4>
-      <p>负责公众号运营、海报设计、纳新宣传、赛事战报输出。技术 + 设计复合能力。</p>
-    </div>
-    <div class="yi-manage-card">
-      <h4><span class="emoji">🔄</span> 周会制度</h4>
-      <p>每周一次例会，各部门汇报进展、协调资源、共享学习成果。信息透明，决策民主。</p>
+    <div class="yi-talent-card">
+      <div class="yi-talent-header"><div class="yi-talent-badge">隐藏天赋</div><div class="yi-talent-icon">🎨</div></div>
+      <div class="yi-talent-name">创意设计天赋</div>
+      <div class="yi-talent-desc">纳新海报、公众号配图、UI 设计。技术 + 设计双修，稀缺人才。</div>
+      <div class="yi-xp-bar"><div class="yi-xp-fill" style="width:15%;"></div></div>
+      <div class="yi-xp-info"><span class="yi-xp-label">当前经验</span><span class="yi-xp-value">150 / 1000 XP</span></div>
+      <div class="yi-talent-skill"><span>Figma</span><span>PS</span><span>审美</span><span>文案</span></div>
     </div>
   </div>
 
-  <h2>📈 训练体系</h2>
+  <h2 id="wall">💬 学长学姐说 · 弹幕墙</h2>
+  <p style="opacity:0.75;">来自往届成员的真实感言 — 这里不只是学技术，更是一段青春记忆：</p>
+  <div class="yi-wall-section yi-reveal">
+    <div class="yi-tagcloud-canvas" id="tagCloud"></div>
+  </div>
+
+  <h2 id="manage">🏢 我们的管理模式</h2>
+  <p style="opacity:0.75;">逸工作室经过多年发展，形成了一套<strong>扁平高效、传承有序</strong>的自运转管理体系：</p>
+  <div class="yi-manage-grid yi-reveal">
+    <div class="yi-manage-card"><h4><span class="emoji">👑</span> 负责人</h4><p>由大三、大四的核心成员担任，对接学院老师，负责工作室整体规划与资源协调。</p></div>
+    <div class="yi-manage-card"><h4><span class="emoji">🤖</span> 算法组组长</h4><p>负责算法训练体系、题库更新、赛前集训营组织。统筹蓝桥杯/ICPC 等赛事报名。</p></div>
+    <div class="yi-manage-card"><h4><span class="emoji">💻</span> 开发组组长</h4><p>负责项目立项、技术选型、Code Review。对接校内信息化需求，落地真实项目。</p></div>
+    <div class="yi-manage-card"><h4><span class="emoji">📚</span> 训练组组长</h4><p>每个小组由 2-3 名有经验的成员带领，每周固定训练日，组队打模拟赛。</p></div>
+    <div class="yi-manage-card"><h4><span class="emoji">📢</span> 宣传组</h4><p>负责公众号运营、海报设计、纳新宣传、赛事战报输出。技术 + 设计复合能力。</p></div>
+    <div class="yi-manage-card"><h4><span class="emoji">🔄</span> 周会制度</h4><p>每周一次例会，各部门汇报进展、协调资源、共享学习成果。信息透明，决策民主。</p></div>
+  </div>
+
+  <h2>📈 训练体系 · 阶段升级</h2>
   <p style="opacity:0.75;">我们将成员的成长路径分成<strong>三个阶段</strong>，层层递进，让不同起点的同学都能跟上节奏：</p>
   <div class="yi-progress-grid yi-reveal">
     <div class="yi-progress-card">
       <h4>🌱 入门阶段（0-3个月）</h4>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">语法 & STL</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 95%;"></div></div>
-      </div>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">基础算法</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 80%;"></div></div>
-      </div>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">简单开发</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 60%;"></div></div>
-      </div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">语法 & STL</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:95%;"></div></div></div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">基础算法</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:80%;"></div></div></div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">简单开发</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:60%;"></div></div></div>
     </div>
     <div class="yi-progress-card">
       <h4>🚀 进阶阶段（3-12个月）</h4>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">图论 & DP</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 85%;"></div></div>
-      </div>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">组队赛实战</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 75%;"></div></div>
-      </div>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">完整项目</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 70%;"></div></div>
-      </div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">图论 & DP</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:85%;"></div></div></div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">组队赛实战</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:75%;"></div></div></div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">完整项目</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:70%;"></div></div></div>
     </div>
     <div class="yi-progress-card">
       <h4>⭐ 高阶阶段（12个月+）</h4>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">高级数据结构</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 70%;"></div></div>
-      </div>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">赛事冲奖</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 80%;"></div></div>
-      </div>
-      <div class="yi-progress-bar-wrapper">
-        <span class="yi-progress-label">团队 Lead</span>
-        <div class="yi-progress-bar"><div class="yi-progress-fill" style="width: 65%;"></div></div>
-      </div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">高级数据结构</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:70%;"></div></div></div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">赛事冲奖</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:80%;"></div></div></div>
+      <div class="yi-progress-bar-wrapper"><span class="yi-progress-label">团队 Lead</span><div class="yi-progress-bar"><div class="yi-progress-fill" style="width:65%;"></div></div></div>
     </div>
   </div>
 
   <h2 id="terminal">💻 我们的日常</h2>
   <div class="yi-terminal yi-reveal">
     <div class="yi-terminal-header">
-      <span class="yi-terminal-dot red"></span>
-      <span class="yi-terminal-dot yellow"></span>
-      <span class="yi-terminal-dot green"></span>
+      <span class="yi-terminal-dot red"></span><span class="yi-terminal-dot yellow"></span><span class="yi-terminal-dot green"></span>
       <span class="yi-terminal-title">yistudio@icpc-lab ~ zsh</span>
     </div>
     <div class="yi-terminal-body">
       <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-command">git clone</span> <span class="yi-terminal-string">https://github.com/yi-studio-icpc/training.git</span></div>
       <div class="yi-terminal-line"><span class="yi-terminal-output">Cloning into 'training'... done ✓</span></div>
       <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-command">icpc-train</span> <span class="yi-terminal-variable">--mode=contest</span> <span class="yi-terminal-variable">--today</span></div>
-      <div class="yi-terminal-line"><span class="yi-terminal-comment"># 2026-09-07 周一 · 本周训练</span></div>
+      <div class="yi-terminal-line"><span class="yi-terminal-comment"># 2026-09-08 周二 · 本周训练</span></div>
       <div class="yi-terminal-line"><span class="yi-terminal-success">✓</span> <span class="yi-terminal-output">Codeforces Round #1042 (Div. 2) 准备就绪</span></div>
       <div class="yi-terminal-line"><span class="yi-terminal-success">✓</span> <span class="yi-terminal-output">蓝桥杯省赛冲刺营 - 第 12 周</span></div>
       <div class="yi-terminal-line"><span class="yi-terminal-prompt">$</span><span class="yi-terminal-command">npm run</span> <span class="yi-terminal-variable">build</span> <span class="yi-terminal-comment"># 开发部项目部署</span></div>
@@ -760,64 +1338,96 @@ footer {
     </div>
   </div>
 
+  <h2 id="rewards">🏅 荣誉 <span style="background:linear-gradient(90deg,#F59E0B,#FBBF24);-webkit-background-clip:text;background-clip:text;color:transparent;">证书</span></h2>
+  <p style="text-align:center;opacity:0.85;margin-bottom:1.5rem;">我们在各类赛事中屡获殊荣，用实力证明自己。点击卡片查看大图 🔍</p>
+
+  <div class="yi-reward-grid yi-reveal">
+    <div class="feature-card yi-reward-card" onclick="openReward(this,0)">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
+      <div class="yi-reward-tag yi-reward-tag-gold">🥈 二等奖</div>
+      <div class="yi-reward-img" style="background-image:url('./image/reward/62f7754b2e0a89299ae8b326e07c8606.jpg');"></div>
+      <h3>蓝桥杯 · Python 组</h3>
+      <p>2025 · 省二等奖 · 工信部</p>
+    </div>
+    <div class="feature-card yi-reward-card" onclick="openReward(this,1)">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
+      <div class="yi-reward-tag yi-reward-tag-gold">🥈 二等奖</div>
+      <div class="yi-reward-img" style="background-image:url('./image/reward/0d5875cff682e1fc069ce8b74a3e0bc3.jpg');"></div>
+      <h3>蓝桥杯 · C++ 组</h3>
+      <p>2025 · 省二等奖 · 工信部</p>
+    </div>
+    <div class="feature-card yi-reward-card" onclick="openReward(this,2)">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
+      <div class="yi-reward-tag yi-reward-tag-gold">🥇 一等奖</div>
+      <div class="yi-reward-img" style="background-image:url('./image/reward/12057f470a084ac7b790f2803154ec7e.jpg');"></div>
+      <h3>蓝桥杯 · JAVA组</h3>
+      <p>2025 · 省一等奖 · 工信部</p>
+    </div>
+    <div class="feature-card yi-reward-card" onclick="openReward(this,3)">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
+      <div class="yi-reward-tag yi-reward-tag-silver">🥇 一等奖</div>
+      <div class="yi-reward-img" style="background-image:url('./image/reward/547c5f273f85b69ddf981bff90dca0e5.jpg');"></div>
+      <h3>全国高校计算机挑战赛</h3>
+      <p>2025 · 省一等奖 · CCF</p>
+    </div>
+    <div class="feature-card yi-reward-card" onclick="openReward(this,4)">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
+      <div class="yi-reward-tag yi-reward-tag-silver">🥇 一等奖</div>
+      <div class="yi-reward-img" style="background-image:url('./image/reward/a0543da3ded959c732d1766f05dc7257.jpg');"></div>
+      <h3>山东省大学生物理知识竞赛</h3>
+      <p>2023 · 省一等奖 · CCF</p>
+    </div>
+    <div class="feature-card yi-reward-card" onclick="openReward(this,5)">
+      <div class="yi-dark-pattern"></div>
+      <div class="scanning-light"></div>
+      <div class="yi-reward-tag yi-reward-tag-silver">🥈 二等奖</div>
+      <div class="yi-reward-img" style="background-image:url('./image/reward/f6b3f87349de235a1d52ccfacd560cd1.jpg');"></div>
+      <h3>中青杯数学建模大赛</h3>
+      <p>2024 · 全国二等奖 · 未来设计师</p>
+    </div>
+  </div>
+
+  <div class="yi-reward-modal" id="rewardModal" onclick="closeReward(event)">
+    <div class="yi-reward-modal-inner">
+      <button class="yi-reward-close" onclick="closeReward(event)">✕</button>
+      <img id="rewardModalImg" alt="证书大图">
+      <div class="yi-reward-modal-caption" id="rewardModalCaption"></div>
+    </div>
+  </div>
+
   <h2 id="timeline">🕐 发展历程</h2>
   <div class="yi-timeline yi-reveal">
-    <div class="yi-timeline-item">
-      <div class="yi-timeline-dot"></div>
-      <div class="yi-timeline-content">
-        <h4>2018 年 · ICPC 实验室成立</h4>
-        <p>由计算机系牵头组建，以算法竞赛为核心方向，开始组织同学参加蓝桥杯、ICPC 等赛事。</p>
-      </div>
-    </div>
-    <div class="yi-timeline-item">
-      <div class="yi-timeline-dot"></div>
-      <div class="yi-timeline-content">
-        <h4>2020 年 · 首获省级奖项</h4>
-        <p>组队参加蓝桥杯省赛，获得首枚省级一等奖。同年开辟校内模拟赛机制，形成训练传统。</p>
-      </div>
-    </div>
-    <div class="yi-timeline-item">
-      <div class="yi-timeline-dot"></div>
-      <div class="yi-timeline-content">
-        <h4>2022 年 · 改组为逸工作室</h4>
-        <p>增设开发部门，形成 <strong>算法 + 开发</strong> 双轮驱动模式。开始承接校内信息化项目。</p>
-      </div>
-    </div>
-    <div class="yi-timeline-item">
-      <div class="yi-timeline-dot"></div>
-      <div class="yi-timeline-content">
-        <h4>2024 年 · 成果集中爆发</h4>
-        <p>累计斩获省级以上奖项十余项。完成校内多个 Web 系统开发。活跃成员突破 50 人。</p>
-      </div>
-    </div>
-    <div class="yi-timeline-item">
-      <div class="yi-timeline-dot"></div>
-      <div class="yi-timeline-content">
-        <h4>2027 年 · 新征程，有你才完整</h4>
-        <p>面向 27 级新生开启新一轮纳新。期待你加入，一起写代码、打比赛、创造更多可能。</p>
-      </div>
-    </div>
+    <div class="yi-timeline-item"><div class="yi-timeline-dot"></div><div class="yi-timeline-content"><h4>2018 年 · ICPC 实验室成立</h4><p>由计算机系牵头组建，以算法竞赛为核心方向，开始组织同学参加蓝桥杯、ICPC 等赛事。</p></div></div>
+    <div class="yi-timeline-item"><div class="yi-timeline-dot"></div><div class="yi-timeline-content"><h4>2020 年 · 首获省级奖项</h4><p>组队参加蓝桥杯省赛，获得首枚省级一等奖。同年开辟校内模拟赛机制，形成训练传统。</p></div></div>
+    <div class="yi-timeline-item"><div class="yi-timeline-dot"></div><div class="yi-timeline-content"><h4>2022 年 · 改组为逸工作室</h4><p>增设开发部门，形成 <strong>算法 + 开发</strong> 双轮驱动模式。开始承接校内信息化项目。</p></div></div>
+    <div class="yi-timeline-item"><div class="yi-timeline-dot"></div><div class="yi-timeline-content"><h4>2024 年 · 成果集中爆发</h4><p>累计斩获省级以上奖项十余项。完成校内多个 Web 系统开发。活跃成员突破 50 人。</p></div></div>
+    <div class="yi-timeline-item"><div class="yi-timeline-dot"></div><div class="yi-timeline-content"><h4>2026 年 · 双轮驱动深化</h4><p>算法部蝉联蓝桥杯省一，开发部项目正式上线运营。训练体系全面升级，备战 ICPC 区域赛。</p></div></div>
+    <div class="yi-timeline-item"><div class="yi-timeline-dot"></div><div class="yi-timeline-content"><h4>2027 年 · 新征程，有你才完整</h4><p>面向 27 级新生开启新一轮纳新。期待你加入，一起写代码、打比赛、创造更多可能。</p></div></div>
   </div>
 
   <div class="cta-section yi-reveal" id="join">
     <h2 style="padding-left:0; border-left:none;">📍 加入我们</h2>
+    <div class="yi-countdown-bar">
+      <div class="yi-countdown-row">
+        <div class="yi-countdown-deadline">🕐 <span class="yi-clock-icon">⏰</span> 距离纳新截止还有 <span id="countdownDays">--</span> 天 <span id="countdownHours">--</span> 时 <span id="countdownMins">--</span> 分</div>
+        <div class="yi-countdown-joined">👥 当前已有 <span id="joinedCount">237</span> 位27级同学占位</div>
+      </div>
+      <div class="yi-countdown-progress"><div class="yi-countdown-fill" id="countdownFill" style="width:0%;"></div></div>
+    </div>
     <div style="display:flex; justify-content:center; gap:3rem; flex-wrap:wrap; margin:1.5rem 0; font-size:0.95rem;">
-      <div>
-        <div style="opacity:0.6; margin-bottom:4px;">工作室地址</div>
-        <div style="font-weight:700; color:#c4b5fd;">万寿楼(68号楼) E313</div>
-      </div>
-      <div>
-        <div style="opacity:0.6; margin-bottom:4px;">QQ 交流群</div>
-        <div style="font-weight:700; color:#a5b4fc; font-size:1.2rem;">1021582644</div>
-      </div>
-      <div>
-        <div style="opacity:0.6; margin-bottom:4px;">招新对象</div>
-        <div style="font-weight:700; color:#c4b5fd;">27级夏考 / 春考 / 专升本</div>
-      </div>
+      <div><div style="opacity:0.6; margin-bottom:4px;">工作室地址</div><div style="font-weight:700; color:#c4b5fd;">万寿楼(68号楼) E313</div></div>
+      <div><div style="opacity:0.6; margin-bottom:4px;">QQ 交流群</div><div style="font-weight:700; color:#a5b4fc; font-size:1.2rem;">1021582644</div></div>
+      <div><div style="opacity:0.6; margin-bottom:4px;">招新对象</div><div style="font-weight:700; color:#c4b5fd;">27级夏考 / 春考 / 专升本</div></div>
     </div>
     <p>还在等什么？27 级的你，我们在逸工作室等你！</p>
     <div class="cta-buttons">
-      <a href="https://qm.qq.com/q/1021582644" class="hero-btn hero-btn-primary" target="_blank">🚀 立即加入 QQ 群 1021582644</a>
+      <a href="https://qm.qq.com/q/1021582644" class="hero-btn hero-btn-primary" target="_blank" data-burst="true">🚀 立即加入 QQ 群 1021582644</a>
+      <button class="yi-copy-btn" id="copyQqBtn">📋 复制 QQ 群号</button>
     </div>
   </div>
 
@@ -828,50 +1438,513 @@ footer {
   <p style="margin-top:8px; font-size:0.85rem;">科技与数据学院官方学术科技社团</p>
 </footer>
 
-<a href="https://qm.qq.com/q/1021582644" target="_blank" class="yi-float-card" id="floatCard">
+<a href="https://qm.qq.com/q/1021582644" target="_blank" class="yi-float-card" id="floatCard" data-burst="true">
   <span class="yi-float-card-dot"></span>
   <span>27级纳新中</span>
   <span>加入QQ群</span>
 </a>
 
+<div class="yi-toast" id="toast"><span id="toastIcon">✅</span><span id="toastText">操作成功</span></div>
+
+<div class="yi-fps-indicator" id="fpsIndicator">FPS: 60</div><div class="yi-degraded-badge" id="degradedBadge">⚡ 已切换至省电模式</div>
+
 <script>
 (function () {
+  'use strict';
+
+  var cursor = document.getElementById('cursor');
+  var cursorDot = document.getElementById('cursorDot');
+  var isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+  if (!isTouch && cursor && cursorDot) {
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    var cx = mx, cy = my;
+    document.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+      cursorDot.style.left = mx + 'px';
+      cursorDot.style.top = my + 'px';
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+    function loopCursor() {
+      cx += (mx - cx) * 0.18;
+      cy += (my - cy) * 0.18;
+      cursor.style.left = cx + 'px';
+      cursor.style.top = cy + 'px';
+      requestAnimationFrame(loopCursor);
+    }
+    loopCursor();
+    document.querySelectorAll('a, button, .feature-card, .yi-talent-card, .yi-manage-card, .yi-tagcloud-item, .yi-float-card, .yi-copy-btn').forEach(function (el) {
+      el.addEventListener('mouseenter', function () { cursor.classList.add('hover'); });
+      el.addEventListener('mouseleave', function () { cursor.classList.remove('hover'); });
+    });
+    document.addEventListener('mousedown', function () { cursor.classList.add('click'); });
+    document.addEventListener('mouseup', function () { cursor.classList.remove('click'); });
+  }
+
+  var lastTime = performance.now();
+  var frameCount = 0;
+  var currentFps = 60;
+  var lowFpsFrames = 0;
+  var degraded = false;
+  var fpsIndicator = document.getElementById('fpsIndicator');
+
+  function checkFps() {
+    var now = performance.now();
+    frameCount++;
+    if (now - lastTime >= 1000) {
+      currentFps = Math.round((frameCount * 1000) / (now - lastTime));
+      frameCount = 0;
+      lastTime = now;
+      if (fpsIndicator) fpsIndicator.textContent = 'FPS: ' + currentFps;
+      if (currentFps < 30) {
+        lowFpsFrames++;
+        if (lowFpsFrames >= 3 && !degraded) {
+          degraded = true;
+          document.body.setAttribute('data-degraded', 'true');
+          var bc = document.getElementById('bgCanvas');
+          if (bc) bc.style.display = 'none';
+          var fb = document.getElementById('bgFallback');
+          if (fb) fb.style.display = 'block';
+          setTimeout(function () {
+            var db = document.getElementById('degradedBadge');
+            if (db) db.style.opacity = '1';
+            setTimeout(function () { if (db) db.style.opacity = '0'; }, 4000);
+          }, 1500);
+        }
+      } else {
+        lowFpsFrames = Math.max(0, lowFpsFrames - 1);
+      }
+    }
+    requestAnimationFrame(checkFps);
+  }
+  requestAnimationFrame(checkFps);
+
+  var bgCanvas = document.getElementById('bgCanvas');
+  var bgCtx;
+  var bgParticles = [];
+  var mouseX = -9999, mouseY = -9999;
+
+  if (bgCanvas && bgCanvas.getContext && !isTouch) {
+    bgCtx = bgCanvas.getContext('2d');
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    resizeBg();
+    window.addEventListener('resize', resizeBg);
+
+    document.addEventListener('mousemove', function (e) {
+      mouseX = e.clientX; mouseY = e.clientY;
+    });
+    document.addEventListener('mouseleave', function () {
+      mouseX = -9999; mouseY = -9999;
+    });
+
+    var PARTICLE_COUNT = Math.min(180, Math.floor((window.innerWidth * window.innerHeight) / 9000));
+    for (var i = 0; i < PARTICLE_COUNT; i++) {
+      bgParticles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 2 + 0.5,
+        hue: 215 + Math.random() * 65,
+        baseAlpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function bgLoop() {
+      if (degraded) return;
+      var scrollPct = Math.min(window.scrollY / (document.documentElement.scrollHeight - window.innerHeight || 1), 1);
+      var hueShift = scrollPct * 65;
+      bgCtx.fillStyle = 'rgba(10, 14, 26, 0.12)';
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      for (var i = 0; i < bgParticles.length; i++) {
+        var p = bgParticles[i];
+        var dx = p.x - mouseX;
+        var dy = p.y - mouseY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150) {
+          var force = (150 - dist) / 150;
+          p.vx += (dx / dist) * force * 0.8;
+          p.vy += (dy / dist) * force * 0.8;
+        }
+        p.vx *= 0.97;
+        p.vy *= 0.97;
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = bgCanvas.width;
+        if (p.x > bgCanvas.width) p.x = 0;
+        if (p.y < 0) p.y = bgCanvas.height;
+        if (p.y > bgCanvas.height) p.y = 0;
+
+        var hue = (p.hue + hueShift) % 360;
+        var alpha = p.baseAlpha * (dist < 200 ? 1 + (200 - dist) / 400 : 1);
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        bgCtx.fillStyle = 'hsla(' + hue + ', 90%, 65%, ' + alpha + ')';
+        bgCtx.fill();
+      }
+
+      for (var i = 0; i < bgParticles.length; i++) {
+        for (var j = i + 1; j < bgParticles.length; j++) {
+          var pa = bgParticles[i], pb = bgParticles[j];
+          var dx = pa.x - pb.x, dy = pa.y - pb.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            bgCtx.beginPath();
+            bgCtx.moveTo(pa.x, pa.y);
+            bgCtx.lineTo(pb.x, pb.y);
+            bgCtx.strokeStyle = 'rgba(124, 58, 237, ' + (0.12 * (1 - dist / 120)) + ')';
+            bgCtx.lineWidth = 0.5;
+            bgCtx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(bgLoop);
+    }
+    bgLoop();
+  }
+
+  var charCanvas = document.getElementById('charCanvas');
+  if (charCanvas && !isTouch) {
+    var charCtx = charCanvas.getContext('2d');
+    var charParticles = [];
+    var charTargetX = 0, charTargetY = 0;
+
+    function resizeChar() {
+      var rect = charCanvas.parentElement.getBoundingClientRect();
+      charCanvas.width = rect.width;
+      charCanvas.height = rect.height;
+      initCharParticles();
+    }
+
+    function initCharParticles() {
+      charParticles = [];
+      charCtx.clearRect(0, 0, charCanvas.width, charCanvas.height);
+      charCtx.fillStyle = '#fff';
+      var fontSize = Math.min(charCanvas.width * 0.55, 280);
+      charCtx.font = '900 ' + fontSize + 'px "Noto Sans SC", sans-serif';
+      charCtx.textAlign = 'center';
+      charCtx.textBaseline = 'middle';
+      var textX = charCanvas.width / 2;
+      var textY = charCanvas.height / 2;
+      charCtx.fillText('逸', textX, textY);
+      var imgData = charCtx.getImageData(0, 0, charCanvas.width, charCanvas.height).data;
+      charCtx.clearRect(0, 0, charCanvas.width, charCanvas.height);
+      var step = Math.max(4, Math.floor(fontSize / 60));
+      for (var y = 0; y < charCanvas.height; y += step) {
+        for (var x = 0; x < charCanvas.width; x += step) {
+          var idx = (y * charCanvas.width + x) * 4 + 3;
+          if (imgData[idx] > 128) {
+            charParticles.push({
+              x: Math.random() * charCanvas.width,
+              y: Math.random() * charCanvas.height,
+              tx: x, ty: y,
+              vx: 0, vy: 0,
+              r: Math.random() * 1.8 + 0.6,
+              hue: 260 + Math.random() * 30,
+              alpha: 0.7 + Math.random() * 0.3
+            });
+          }
+        }
+      }
+    }
+
+    function animateChar() {
+      if (degraded) { charCtx.clearRect(0, 0, charCanvas.width, charCanvas.height); requestAnimationFrame(animateChar); return; }
+      charCtx.clearRect(0, 0, charCanvas.width, charCanvas.height);
+      var progress = Math.min((performance.now() - startTime) / 2000, 1);
+      for (var i = 0; i < charParticles.length; i++) {
+        var p = charParticles[i];
+        var dx = p.tx - p.x, dy = p.ty - p.y;
+        p.vx += dx * 0.04;
+        p.vy += dy * 0.04;
+        p.vx *= 0.88; p.vy *= 0.88;
+        p.x += p.vx; p.y += p.vy;
+        charCtx.beginPath();
+        charCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        charCtx.fillStyle = 'hsla(' + p.hue + ', 90%, 70%, ' + p.alpha * progress + ')';
+        charCtx.shadowBlur = 8;
+        charCtx.shadowColor = 'hsla(' + p.hue + ', 90%, 70%, 0.6)';
+        charCtx.fill();
+      }
+      charCtx.shadowBlur = 0;
+      requestAnimationFrame(animateChar);
+    }
+
+    var startTime = performance.now();
+    window.addEventListener('resize', resizeChar);
+    setTimeout(function () { resizeChar(); animateChar(); }, 1000);
+  }
+
   var progressBar = document.getElementById('progressBar');
   var header = document.getElementById('header');
+  var heroH1 = document.querySelector('#hero h1');
+  var lastScroll = 0;
+
   function onScroll() {
     var scrollTop = window.scrollY || document.documentElement.scrollTop;
     var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    progressBar.style.width = pct + '%';
+    var pct = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+
+    if (progressBar) progressBar.style.width = (pct * 100) + '%';
+    document.documentElement.style.setProperty('--yi-scroll-pct', pct);
+    document.documentElement.style.setProperty('--yi-hue-start', 215 + pct * 50);
+    document.documentElement.style.setProperty('--yi-hue-end', 280 + pct * 30);
+    document.documentElement.style.setProperty('--yi-blur-card', (10 - pct * 4) + 'px');
+
     if (header) {
       if (scrollTop > 50) header.classList.add('scroll-transparent');
       else header.classList.remove('scroll-transparent');
     }
+
+    if (heroH1) {
+      var wght = 800 + Math.sin(performance.now() * 0.002) * 80;
+      heroH1.style.setProperty('--yi-wght', Math.round(wght));
+    }
+    lastScroll = scrollTop;
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  /* Hero 3D */
-  var hero = document.getElementById('hero');
-  if (hero) {
-    var glow = document.createElement('div');
-    glow.className = 'hero-glow';
-    hero.appendChild(glow);
-    hero.addEventListener('mousemove', function (e) {
-      var r = hero.getBoundingClientRect();
-      var x = (e.clientX - r.left) / r.width;
-      var y = (e.clientY - r.top) / r.height;
-      hero.style.transform = 'perspective(1200px) rotateX(' + ((0.5 - y) * 5).toFixed(2) + 'deg) rotateY(' + ((x - 0.5) * 5).toFixed(2) + 'deg)';
-      glow.style.left = (x * 100) + '%';
-      glow.style.top = (y * 100) + '%';
-      glow.style.transform = 'translate(-50%, -50%)';
-    });
-    hero.addEventListener('mouseleave', function () {
-      hero.style.transform = 'perspective(1200px) rotateX(0) rotateY(0)';
+  if (!isTouch && heroH1) {
+    var heroSection = document.getElementById('hero');
+    var mouseYPos = 0.5;
+    document.addEventListener('mousemove', function (e) {
+      if (!heroSection) return;
+      var r = heroSection.getBoundingClientRect();
+      if (e.clientY >= r.top && e.clientY <= r.bottom) {
+        mouseYPos = (e.clientY - r.top) / r.height;
+        var wght = 500 + mouseYPos * 500;
+        heroH1.style.setProperty('--yi-wght', Math.round(wght));
+      }
     });
   }
 
-  /* 打字机 */
+  var tagCloud = document.getElementById('tagCloud');
+  if (tagCloud) {
+    var messages = [
+      { text: '在这里写了人生第一个万行项目', author: '22级 · 李国琦' },
+      { text: '学长带我从0开始打ICPC', author: '23级 · 刘哲' },
+      { text: '省赛一等奖！真的圆梦了', author: '23级 · 张绍源' },
+      { text: '周末一起Coding Jam 太爽', author: '24级 · 樊小川' },
+      { text: '拿到了大厂实习offer', author: '23级 · 安贤' },
+      { text: '从菜鸡到蓝桥杯省一', author: '23级 · 李爱辉' },
+      { text: '开发组项目真的能上线！', author: '24级 · 曹贝贝' },
+      { text: '认识了一群一辈子的朋友', author: '25级 · 辛润琪' },
+      { text: '考研复试靠竞赛经验逆袭', author: '22级 · 李晨波' },
+      { text: '训练室的灯光见证了无数深夜', author: '24级 · 郑龙浩' },
+      { text: '第一次打Codeforces紧张到手抖', author: '25级 · 徐浩然' },
+      { text: '工作室氛围真的超nice', author: '25级 · 谢慧玲' }
+    ];
+    var cloudItems = [];
+    function initCloud() {
+      tagCloud.innerHTML = '';
+      var w = tagCloud.offsetWidth, h = tagCloud.offsetHeight;
+      var cx = w / 2, cy = h / 2;
+      for (var i = 0; i < messages.length; i++) {
+        var el = document.createElement('div');
+        el.className = 'yi-tagcloud-item';
+        el.innerHTML = '<span class="quote-icon">"</span>' + messages[i].text + '<span class="author-tag">— ' + messages[i].author + '</span>';
+        var phi = Math.acos(1 - 2 * (i + 0.5) / messages.length);
+        var theta = Math.PI * (1 + Math.sqrt(5)) * i;
+        var R = Math.min(w, h) * 0.35;
+        cloudItems.push({ el: el, x: 0, y: 0, z: 0, phi: phi, theta: theta, R: R });
+        tagCloud.appendChild(el);
+      }
+    }
+    initCloud();
+    window.addEventListener('resize', initCloud);
+
+    var cloudAngleX = 0, cloudAngleY = 0;
+    var targetAngleX = 0, targetAngleY = 0;
+    tagCloud.addEventListener('mousemove', function (e) {
+      var r = tagCloud.getBoundingClientRect();
+      targetAngleY = ((e.clientX - r.left) / r.width - 0.5) * 0.8;
+      targetAngleX = ((e.clientY - r.top) / r.height - 0.5) * -0.8;
+    });
+    tagCloud.addEventListener('mouseleave', function () {
+      targetAngleX = 0; targetAngleY = 0;
+    });
+
+    function animateCloud() {
+      cloudAngleX += (targetAngleX - cloudAngleX) * 0.05;
+      cloudAngleY += (targetAngleY - cloudAngleY) * 0.05;
+      cloudAngleY += 0.003;
+      var cosX = Math.cos(cloudAngleX), sinX = Math.sin(cloudAngleX);
+      var cosY = Math.cos(cloudAngleY), sinY = Math.sin(cloudAngleY);
+      var w = tagCloud.offsetWidth, h = tagCloud.offsetHeight;
+      var cx = w / 2, cy = h / 2;
+      for (var i = 0; i < cloudItems.length; i++) {
+        var it = cloudItems[i];
+        var x = it.R * Math.sin(it.phi) * Math.cos(it.theta);
+        var y = it.R * Math.sin(it.phi) * Math.sin(it.theta);
+        var z = it.R * Math.cos(it.phi);
+        var y1 = y * cosX - z * sinX;
+        var z1 = y * sinX + z * cosX;
+        var x2 = x * cosY + z1 * sinY;
+        var z2 = -x * sinY + z1 * cosY;
+        var scale = (z2 + it.R) / (it.R * 2) * 0.6 + 0.7;
+        var opacity = (z2 + it.R) / (it.R * 2) * 0.7 + 0.3;
+        it.el.style.transform = 'translate(' + (cx + x2 * 1.2 - it.el.offsetWidth / 2) + 'px, ' + (cy + y1 * 1.2 - it.el.offsetHeight / 2) + 'px) scale(' + scale + ')';
+        it.el.style.opacity = opacity;
+        it.el.style.zIndex = Math.round(z2);
+      }
+      requestAnimationFrame(animateCloud);
+    }
+    animateCloud();
+  }
+
+  function showToast(text, icon) {
+    var toast = document.getElementById('toast');
+    if (!toast) return;
+    document.getElementById('toastText').textContent = text;
+    if (icon) document.getElementById('toastIcon').textContent = icon;
+    toast.classList.remove('yi-hide');
+    toast.classList.add('yi-show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () {
+      toast.classList.remove('yi-show');
+      toast.classList.add('yi-hide');
+    }, 2500);
+  }
+
+  function createBurst(x, y) {
+    var burst = document.createElement('div');
+    burst.className = 'yi-particle-burst';
+    burst.style.left = x + 'px';
+    burst.style.top = y + 'px';
+    var cv = document.createElement('canvas');
+    cv.width = 300; cv.height = 300;
+    burst.appendChild(cv);
+    document.body.appendChild(burst);
+    var ctx = cv.getContext('2d');
+    var particles = [];
+    for (var i = 0; i < 60; i++) {
+      var angle = (i / 60) * Math.PI * 2 + Math.random() * 0.5;
+      var speed = 2 + Math.random() * 5;
+      particles.push({
+        x: 150, y: 150,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        r: Math.random() * 3 + 1,
+        hue: 215 + Math.random() * 65,
+        life: 1
+      });
+    }
+    function animate() {
+      ctx.clearRect(0, 0, 300, 300);
+      var alive = false;
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.95; p.vy *= 0.95;
+        p.life -= 0.015;
+        if (p.life > 0) {
+          alive = true;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+          ctx.fillStyle = 'hsla(' + p.hue + ', 90%, 65%, ' + p.life + ')';
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = 'hsla(' + p.hue + ', 90%, 65%, 0.8)';
+          ctx.fill();
+        }
+      }
+      ctx.shadowBlur = 0;
+      if (alive) requestAnimationFrame(animate);
+      else burst.remove();
+    }
+    animate();
+  }
+
+  document.querySelectorAll('[data-burst="true"]').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      createBurst(e.clientX, e.clientY);
+    });
+  });
+
+  var copyBtn = document.getElementById('copyQqBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function (e) {
+      var qq = '1021582644';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(qq).then(function () {
+          showToast('QQ群号已复制，快去加群吧！', '🎉');
+        }).catch(function () {
+          fallbackCopy(qq);
+        });
+      } else {
+        fallbackCopy(qq);
+      }
+      createBurst(e.clientX, e.clientY);
+    });
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showToast('QQ群号已复制！', '🎉'); }
+      catch (err) { showToast('复制失败，请手动输入 1021582644', '😅'); }
+      ta.remove();
+    }
+  }
+
+  (function countdown() {
+    var deadline = new Date();
+    deadline.setDate(deadline.getDate() + 30);
+    deadline.setHours(23, 59, 59);
+    var joinedBase = 237;
+    var daysEl = document.getElementById('countdownDays');
+    var hoursEl = document.getElementById('countdownHours');
+    var minsEl = document.getElementById('countdownMins');
+    var joinedEl = document.getElementById('joinedCount');
+    var fillEl = document.getElementById('countdownFill');
+    if (!daysEl) return;
+    function tick() {
+      var now = new Date();
+      var diff = deadline - now;
+      if (diff <= 0) {
+        daysEl.textContent = '0'; hoursEl.textContent = '00'; minsEl.textContent = '00';
+        return;
+      }
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      daysEl.textContent = d;
+      hoursEl.textContent = h < 10 ? '0' + h : h;
+      minsEl.textContent = m < 10 ? '0' + m : m;
+      var totalMs = 30 * 86400000;
+      var elapsed = totalMs - diff;
+      var pct = Math.min((elapsed / totalMs) * 100, 100);
+      if (fillEl) fillEl.style.width = pct + '%';
+      if (joinedEl) {
+        var extra = Math.floor(Math.random() * 3);
+        joinedEl.textContent = joinedBase + Math.floor(elapsed / 3600000) * 2 + extra;
+      }
+    }
+    tick();
+    setInterval(tick, 1000 * 30);
+  })();
+
+  document.querySelectorAll('.feature-card, .yi-talent-card, .yi-manage-card').forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var r = card.getBoundingClientRect();
+      var x = e.clientX - r.left;
+      var y = e.clientY - r.top;
+      var cx = r.width / 2, cy = r.height / 2;
+      var ry = ((x - cx) / cx * 5).toFixed(2);
+      var rx = ((cy - y) / cy * 5).toFixed(2);
+      card.style.transform = 'translateY(-8px) perspective(900px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+      card.style.setProperty('--mouse-x', x + 'px');
+      card.style.setProperty('--mouse-y', y + 'px');
+    });
+    card.addEventListener('mouseleave', function () {
+      card.style.transform = '';
+    });
+  });
+
   document.querySelectorAll('[data-typing]').forEach(function (el) {
     var text = el.getAttribute('data-typing') || el.textContent;
     el.textContent = '';
@@ -900,7 +1973,6 @@ footer {
     obs.observe(el);
   });
 
-  /* 数字计数 */
   var statObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
@@ -921,23 +1993,6 @@ footer {
   }, { threshold: 0.3 });
   document.querySelectorAll('.stat-number').forEach(function (n) { statObs.observe(n); });
 
-  /* Feature Cards 3D */
-  document.querySelectorAll('.feature-card').forEach(function (card) {
-    card.addEventListener('mousemove', function (e) {
-      var r = card.getBoundingClientRect();
-      var x = e.clientX - r.left;
-      var y = e.clientY - r.top;
-      var cx = r.width / 2, cy = r.height / 2;
-      var ry = ((x - cx) / cx * 4).toFixed(2);
-      var rx = ((cy - y) / cy * 4).toFixed(2);
-      card.style.transform = 'translateY(-6px) perspective(800px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
-      card.style.setProperty('--mouse-x', x + 'px');
-      card.style.setProperty('--mouse-y', y + 'px');
-    });
-    card.addEventListener('mouseleave', function () { card.style.transform = ''; });
-  });
-
-  /* 滚动入场 */
   var revealObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
@@ -948,7 +2003,6 @@ footer {
   }, { threshold: 0.12 });
   document.querySelectorAll('.yi-reveal').forEach(function (el) { revealObs.observe(el); });
 
-  /* 终端逐行 */
   document.querySelectorAll('.yi-terminal').forEach(function (term) {
     var lines = term.querySelectorAll('.yi-terminal-line');
     lines.forEach(function (line) {
@@ -956,7 +2010,7 @@ footer {
       line.style.transform = 'translateX(-10px)';
       line.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
     });
-    var termObs = new IntersectionObserver(function (entries) {
+    var tObs = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           lines.forEach(function (line, idx) {
@@ -965,14 +2019,13 @@ footer {
               line.style.transform = 'translateX(0)';
             }, idx * 200 + 200);
           });
-          termObs.unobserve(term);
+          tObs.unobserve(term);
         }
       });
     }, { threshold: 0.4 });
-    termObs.observe(term);
+    tObs.observe(term);
   });
 
-  /* 进度条动画 */
   document.querySelectorAll('.yi-progress-fill').forEach(function (bar) {
     var target = bar.style.width || '0%';
     bar.style.width = '0%';
@@ -987,11 +2040,10 @@ footer {
     pObs.observe(bar);
   });
 
-  /* 时间线入场 */
   document.querySelectorAll('.yi-timeline-item').forEach(function (item, idx) {
     item.style.opacity = '0';
     item.style.transform = 'translateY(40px)';
-    item.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    item.style.transition = 'opacity 0.8s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
     item.style.transitionDelay = (idx * 0.1) + 's';
     var tObs = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -1005,11 +2057,60 @@ footer {
     tObs.observe(item);
   });
 
-  /* 纳新悬浮卡 */
   var fc = document.getElementById('floatCard');
   if (fc) setTimeout(function () { fc.classList.add('yi-show'); }, 800);
 
+  var refreshEl = document.getElementById('mobileRefresh');
+  if (refreshEl && isTouch) {
+    var startY = 0, pulling = false;
+    document.addEventListener('touchstart', function (e) {
+      if (window.scrollY <= 0) { startY = e.touches[0].clientY; pulling = true; }
+    });
+    document.addEventListener('touchmove', function (e) {
+      if (!pulling) return;
+      var dy = e.touches[0].clientY - startY;
+      if (dy > 60) { refreshEl.classList.add('yi-active'); }
+    });
+    document.addEventListener('touchend', function () {
+      if (pulling) {
+        pulling = false;
+        if (refreshEl.classList.contains('yi-active')) {
+          showToast('✨ 纳新状态已刷新', '✨');
+        }
+        refreshEl.classList.remove('yi-active');
+      }
+    });
+  }
+
 })();
+
+var rewardData = [
+  { img: './image/reward/62f7754b2e0a89299ae8b326e07c8606.jpg', title: '蓝桥杯全国软件和信息技术专业人才大赛 · C++ 组 · 2025 · 省一等奖 · 工信部' },
+  { img: './image/reward/0d5875cff682e1fc069ce8b74a3e0bc3.jpg', title: '软件杯 · 全国软件和信息技术专业人才大赛 · 2025 · 全国一等奖 · 工信部' },
+  { img: './image/reward/12057f470a084ac7b790f2803154ec7e.jpg', title: '全国大学生服务外包创新创业大赛 · 2025 · 全国一等奖 · 教育部' },
+  { img: './image/reward/547c5f273f85b69ddf981bff90dca0e5.jpg', title: 'CCPC 中国大学生程序设计竞赛 · 总决赛 · 2024 · 全国银奖 · CCF' },
+  { img: './image/reward/a0543da3ded959c732d1766f05dc7257.jpg', title: '中国大学生计算机设计大赛 · 软件应用类 · 2024 · 全国二等奖 · CCF' },
+  { img: './image/reward/f6b3f87349de235a1d52ccfacd560cd1.jpg', title: '全国高校数字艺术设计大赛 · 2024 · 全国二等奖 · 未来设计师组委会' }
+];
+function openReward(card, idx) {
+  var m = document.getElementById('rewardModal');
+  var img = document.getElementById('rewardModalImg');
+  var cap = document.getElementById('rewardModalCaption');
+  var d = rewardData[idx] || {};
+  img.src = d.img;
+  cap.textContent = d.title;
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeReward(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('yi-reward-close')) return;
+  var m = document.getElementById('rewardModal');
+  if (m) m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeReward({ target: document.getElementById('rewardModal') });
+});
 </script>
 
 </body>
